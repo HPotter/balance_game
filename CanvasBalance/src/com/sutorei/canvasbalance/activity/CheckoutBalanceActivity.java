@@ -18,7 +18,6 @@ import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;

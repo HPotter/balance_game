@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -96,7 +97,7 @@ public class BalanceView extends View {
 	private Paint mAntiAliasingPaint, mAlphaPaint;
 	int mLeftCupXAtBalance, mLeftCupYAtBalance;
 	private WeightedObject mDraggedObject = null;
-	private float scaleRatio;
+	private float totalScaleRatio, objectScaleRatio;
 	private int mDraggedObjectIndex, mDraggedObjectOrigin;
 	//object origin -1 means left cup, 1 - right cup, 0 - avaliable objects
 	Matrix mRotationAnimation, mRotationPredisposition;
@@ -181,6 +182,8 @@ public class BalanceView extends View {
 		mPreviousState = BalanceState.EQUAL;
 		mCurrentState = mPreviousState;
 		touchable = true;
+		mAlphaPaint = new Paint();
+		mAlphaPaint.setAlpha(100);
 		
 		loadAndStartTask(context,
 				taskData.getBalanceData().get(i).getObjectsOnLeft(),
@@ -234,22 +237,48 @@ public class BalanceView extends View {
 			List<WeightedObject> _objectsOnRight,
 			List<WeightedObject> _avaliableObjects,
 			boolean _isTouchable, boolean _isFixed, BalanceState bs){
+		int maxHeight = BASE_HEIGHT/4;
 		mObjectsOnLeft = _objectsOnLeft;
 		for (WeightedObject wo: mObjectsOnLeft){
 			mWeightOnLeft += wo.getWeight();
+			if (wo.getBitmap().getHeight() > maxHeight){
+				maxHeight = wo.getBitmap().getHeight();
+			}
 		}
 		mObjectsOnRight = _objectsOnRight;
 		for (WeightedObject wo: mObjectsOnRight){
 			mWeightOnRight += wo.getWeight();
+			if (wo.getBitmap().getHeight() > maxHeight){
+				maxHeight = wo.getBitmap().getHeight();
+			}
 		}
+		
 		mAvaliableObjects = _avaliableObjects;
+
+		for (WeightedObject wo: mAvaliableObjects){
+			if (wo.getBitmap().getHeight() > maxHeight){
+				maxHeight = wo.getBitmap().getHeight();
+			}
+		}
+
+		objectScaleRatio = ((float)BASE_HEIGHT/4)/maxHeight;
+		
+		for (WeightedObject wo: mObjectsOnLeft){
+			wo.setScalingRatio(objectScaleRatio);
+		}
+		for (WeightedObject wo: mObjectsOnRight){
+			wo.setScalingRatio(objectScaleRatio);
+		}
+		for (WeightedObject wo: mAvaliableObjects){
+			wo.setScalingRatio(objectScaleRatio);
+		}
+		
 		touchable = _isTouchable;
 		fixed = _isFixed;
 		taskLoaded = true;
 		
 		mCurrentState = bs;
 		mPreviousState = bs;
-		
 		mInitPlacementFinished = false;
 		mAnimationOngoing = false;
 		mDraggedObject = null;
@@ -284,6 +313,8 @@ public class BalanceView extends View {
         float derivedProportion = mandatoryWidth/mandatoryHeight;
         if (derivedProportion >= proportion){
         	setMeasuredDimension(Math.round(proportion * mandatoryHeight), mandatoryHeight);
+        	this.mViewWidth = Math.round(proportion * mandatoryHeight);
+        	this.mViewHeight = mandatoryHeight;
         } else {
         	setMeasuredDimension(mandatoryWidth, Math.round(proportion * mandatoryWidth));
 
@@ -308,16 +339,13 @@ public class BalanceView extends View {
 	}
 	public void drawOnCanvas(Canvas canvas){
 		if (!taskLoaded){
-			Log.d("SHOTS", "NOT FIRED");
 			return;
 		}
 		float scaleWidth = mViewWidth/(float)BASE_WIDTH;
 		float scaleHeight = mViewHeight/(float)BASE_HEIGHT;
-		scaleRatio = Math.min(scaleWidth, scaleHeight);
-		canvas.scale(scaleRatio, scaleRatio);
-		Log.d("SHOTS", "FIRED 1");
+		totalScaleRatio = Math.min(scaleWidth, scaleHeight);
+		canvas.scale(totalScaleRatio, totalScaleRatio);
 		if (!fixed){
-			Log.d("SHOTS", "FIRED 2");
 			mCurrentState = checkBalance();
 			if(mCurrentState != mPreviousState){
 				int degreeClause, direction;
@@ -349,7 +377,6 @@ public class BalanceView extends View {
 			}
 		}
 		if (!mInitPlacementFinished){
-			Log.d("SHOTS", "FIRED 3");
 			leftCupObjectOffset = 0;
 			rightCupObjectOffset = 0;
 			mLeftCupXAtBalance = BASE_WIDTH/2 - mBeam.getBitmap().getWidth()/2 - mRightCup.getBitmap().getWidth()/4;
@@ -404,43 +431,80 @@ public class BalanceView extends View {
 			mPreviousState = mCurrentState;
 			mCurrentState = checkBalance();
 		}
-		Log.d("SHOTS", "FIRED 4");
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
 		int xOffset = 5;
-		int yOffset = (int)(BASE_HEIGHT*19/20);
+		int yOffset = Math.round(BASE_HEIGHT*19/20);
+		Log.d("HEIGHT_COEF", Float.toString(objectScaleRatio));
 		for (WeightedObject wo : mAvaliableObjects){
 			wo.setX(xOffset);
-		wo.setY(yOffset - wo.getBitmap().getHeight());
-			canvas.drawBitmap(wo.getBitmap(),
+			wo.setY(yOffset - Math.round(wo.getHeight()));
+			Log.d("avaliable measures", 	Float.toString(wo.getX()) + " " + 
+								Float.toString(wo.getY()) + " " +
+								Float.toString(wo.getWidth()) + " " +
+								Float.toString(wo.getHeight()));
+			canvas.drawBitmap(	wo.getBitmap(), 
+								null, 
+								new RectF(	wo.getX(), wo.getY(), 
+											wo.getX() + wo.getWidth(),
+											wo.getY() + wo.getHeight()),
+								mAntiAliasingPaint);
+/*			canvas.drawBitmap(wo.getBitmap(),
 				wo.getX(),
 				wo.getY(),
-				mAntiAliasingPaint);
+				mAntiAliasingPaint); */
 			xOffset += 5 + wo.getBitmap().getWidth();
 		}
 		for (WeightedObject wo : mObjectsOnRight){
+			Log.d("right measures", 	Float.toString(wo.getX()) + " " + 
+					Float.toString(wo.getY()) + " " +
+					Float.toString(wo.getWidth()) + " " +
+					Float.toString(wo.getHeight()));
 			wo.setX(mRightCup.getX() - rightCupObjectOffset 
-					+ mRightCup.getBitmap().getWidth()*8/9 - wo.getBitmap().getWidth());
-			wo.setY(mRightCup.getY() + mRightCup.getBitmap().getHeight()*1/4 - wo.getBitmap().getHeight());
-			canvas.drawBitmap(wo.getBitmap(),
+					+ mRightCup.getBitmap().getWidth()*8/9 - Math.round(wo.getWidth()));
+			wo.setY(mRightCup.getY() + mRightCup.getBitmap().getHeight()*1/4 - Math.round(wo.getHeight()));
+			canvas.drawBitmap(	wo.getBitmap(), 
+					null, 
+					new RectF(	wo.getX(), wo.getY(), 
+								wo.getX() + wo.getWidth(),
+								wo.getY() + wo.getHeight()),
+					mAntiAliasingPaint);
+			/*canvas.drawBitmap(wo.getBitmap(),
 				wo.getX(),
 				wo.getY(),
-				mAntiAliasingPaint);
+				mAntiAliasingPaint);*/
 			rightCupObjectOffset = (rightCupObjectOffset + mRightCup.getBitmap().getWidth()/4) %
 				(mRightCup.getBitmap().getWidth()*7/11);
 		}
 		for (WeightedObject wo : mObjectsOnLeft){
+			Log.d("left measures", 	Float.toString(wo.getX()) + " " + 
+					Float.toString(wo.getY()) + " " +
+					Float.toString(wo.getWidth()) + " " +
+					Float.toString(wo.getHeight()));
 			wo.setX(mLeftCup.getX() + leftCupObjectOffset + mLeftCup.getBitmap().getWidth()/7);
-			wo.setY(mLeftCup.getY() + mLeftCup.getBitmap().getHeight()*1/4 - wo.getBitmap().getHeight());
-			canvas.drawBitmap(wo.getBitmap(),
+			wo.setY(mLeftCup.getY() + mLeftCup.getBitmap().getHeight()*1/4 - Math.round(wo.getHeight()));
+			canvas.drawBitmap(	wo.getBitmap(), 
+					null, 
+					new RectF(	wo.getX(), wo.getY(), 
+								wo.getX() + wo.getWidth(),
+								wo.getY() + wo.getHeight()),
+					mAntiAliasingPaint);
+			/*canvas.drawBitmap(wo.getBitmap(),
 				wo.getX(),
 				wo.getY(),
-				mAntiAliasingPaint);
+				mAntiAliasingPaint);*/
 			leftCupObjectOffset = (leftCupObjectOffset + mLeftCup.getBitmap().getWidth()/4) %
 					(mRightCup.getBitmap().getWidth()*7/11);
 
 		}
-		
+		if (mDraggedObject != null){
+			canvas.drawBitmap(mDraggedObject.getBitmap(), 
+				null,
+				new RectF(	mDraggedObject.getX(), mDraggedObject.getY(), 
+						mDraggedObject.getX() + mDraggedObject.getWidth(),
+						mDraggedObject.getY() + mDraggedObject.getHeight()),
+				mAlphaPaint);
+		}
 		canvas.drawBitmap(mLeftCup.getBitmap(),
 				mLeftCup.getX(),
 				mLeftCup.getY(),
@@ -454,12 +518,6 @@ public class BalanceView extends View {
 				mSupport.getX(),
 				mSupport.getY(),
 				mAntiAliasingPaint);
-		if (mDraggedObject != null){
-			canvas.drawBitmap(mDraggedObject.getBitmap(), 
-				mDraggedObject.getX(),
-				mDraggedObject.getY(),
-				mAlphaPaint);
-		}
 	}
 
 	private class AnimationUpdateThread implements Runnable{
@@ -474,8 +532,9 @@ public class BalanceView extends View {
 		@Override
 		public void run() {
 			mAnimationOngoing = true;
-			float currentSignum = Math.signum(mDegree - degreeClause);
-			while(currentSignum == Math.signum(mDegree - degreeClause)){
+			float startingSignum = Math.signum(mDegree - degreeClause);
+//			while(startingSignum == smoothenedSignum(mDegree)){
+			while ((mDegree - degreeClause)*startingSignum>= 1e-3){
 				mDegree += (float)direction*32/100;
 				mLeftCup.setY(mLeftCup.getY() - direction);
 				mRightCup.setY(mRightCup.getY() + direction);
@@ -500,6 +559,9 @@ public class BalanceView extends View {
 					
 				}		
 			}
+			mDegree = degreeClause;
+			BalanceView.this.postInvalidate();
+			Log.d("SIGNUMS", Float.toString(mDegree) + " " + Float.toString(degreeClause));
 			mAnimationOngoing = false;
 		}
 		
@@ -509,8 +571,8 @@ public class BalanceView extends View {
 
 		@Override
 		public boolean onTouch(View view, MotionEvent event) {
-			int eventX = (int)(event.getX()/scaleRatio);
-			int eventY = (int)(event.getY()/scaleRatio);
+			int eventX = (int)(event.getX()/totalScaleRatio);
+			int eventY = (int)(event.getY()/totalScaleRatio);
 			if (mAnimationOngoing)
 				return false;
 			if (!touchable)
