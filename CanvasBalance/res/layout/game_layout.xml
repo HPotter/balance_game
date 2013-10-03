@@ -68,7 +68,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@id/task_description"
         android:overScrollMode="never"
-        android:padding="10dp"
+        android:layout_margin="10dp"
         android:scrollbars="none" >
 
         <LinearLayout

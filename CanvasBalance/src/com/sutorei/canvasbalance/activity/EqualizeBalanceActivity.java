@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.content.DialogInterface;
 
@@ -35,12 +36,14 @@ public class EqualizeBalanceActivity extends Activity {
 
 		setContentView(R.layout.activity_equalize_balance);
 		
-		balance  = (BalanceView)findViewById(R.id.balanceView1);
-		taskText = (TextView)findViewById(R.id.text_task_condition);
-		taskTitle = (TextView)findViewById(R.id.text_task_number);
+		balance = new BalanceView(this);
+		setContentView(R.layout.game_layout);
+		taskText = (TextView)findViewById(R.id.task_description);
+		taskTitle = (TextView)findViewById(R.id.task_title);
 		buttonBack = (ImageButton)findViewById(R.id.image_button_back);
 		buttonCheck = (ImageButton)findViewById(R.id.image_button_check);
 		buttonRestart = (ImageButton)findViewById(R.id.image_button_restart);
+		((LinearLayout)findViewById(R.id.linear_balance_container)).addView(balance);
 		
 		shpref = getSharedPreferences(PathConstants.SHARED_PROGRESS_NAME, 0);
 		editor = shpref.edit();

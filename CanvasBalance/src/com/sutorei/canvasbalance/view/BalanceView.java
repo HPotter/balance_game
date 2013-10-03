@@ -287,15 +287,15 @@ public class BalanceView extends View {
 	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
+		
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		int desiredWidth = BASE_WIDTH;
 		int desiredHeight = BASE_HEIGHT;
-		float proportion = desiredWidth / desiredHeight;
+		float proportion = (float)desiredWidth / desiredHeight;
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-		int widthMode = MeasureSpec.getMode(heightMeasureSpec);
-		int widthSize = MeasureSpec.getSize(heightMeasureSpec);
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 		Log.d("Sizes", Integer.toString(heightSize) + " " + Integer.toString(widthSize));
 		int mandatoryHeight = desiredHeight;
 		int mandatoryWidth = desiredWidth;
@@ -310,7 +310,8 @@ public class BalanceView extends View {
 			mandatoryHeight = widthSize;
 		}
 
-		float derivedProportion = mandatoryWidth / mandatoryHeight;
+		float derivedProportion = (float)mandatoryWidth / mandatoryHeight;
+		Log.d("proportion", ""+proportion + " " + derivedProportion);
 		if (derivedProportion >= proportion) {
 			setMeasuredDimension(Math.round(proportion * mandatoryHeight),
 					mandatoryHeight);
