@@ -38,9 +38,9 @@ public class CheckoutBalanceActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		//Remove title bar
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_checkout_balance);
-		taskText = (TextView)findViewById(R.id.text_task_condition);
-		taskTitle = (TextView)findViewById(R.id.text_task_number);
+		setContentView(R.layout.game_layout);
+		taskText = (TextView)findViewById(R.id.task_description);
+		taskTitle = (TextView)findViewById(R.id.task_title);
 		buttonBack = (ImageButton)findViewById(R.id.image_button_back);
 		buttonCheck = (ImageButton)findViewById(R.id.image_button_check);
 		buttonRestart = (ImageButton)findViewById(R.id.image_button_restart);
@@ -92,9 +92,9 @@ public class CheckoutBalanceActivity extends Activity {
 				AlertDialog.Builder builder = new AlertDialog.Builder(CheckoutBalanceActivity.this);
 				if (mistakePresent){
 					builder.setIcon(R.drawable.icon_smilered);
-					builder.setTitle("Задача решена с ошибкой");
+					builder.setTitle("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 				    builder.setInverseBackgroundForced(true);
-					builder.setPositiveButton("Перерешать",new DialogInterface.OnClickListener()
+					builder.setPositiveButton("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",new DialogInterface.OnClickListener()
 				    {
 				        @Override
 				        public void onClick(DialogInterface dialog, int which) 
@@ -106,9 +106,9 @@ public class CheckoutBalanceActivity extends Activity {
 					editor.putInt(String.valueOf(levelId), -1);
 				} else {
 					builder.setIcon(R.drawable.icon_smilegreen);
-				    builder.setTitle("Задача решена правильно");
+				    builder.setTitle("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 				    builder.setInverseBackgroundForced(true);
-					builder.setPositiveButton("Хорошо!",new DialogInterface.OnClickListener()
+					builder.setPositiveButton("пїЅпїЅпїЅпїЅпїЅпїЅ!",new DialogInterface.OnClickListener()
 				    {
 				        @Override
 				        public void onClick(DialogInterface dialog, int which) 

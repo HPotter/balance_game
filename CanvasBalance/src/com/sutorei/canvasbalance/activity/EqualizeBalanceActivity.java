@@ -58,9 +58,9 @@ public class EqualizeBalanceActivity extends Activity {
 				if(balance.getCurrentState() == BalanceState.EQUAL &&
 						balance.getAvaliableObjects().isEmpty()){
 					builder.setIcon(R.drawable.icon_smilegreen);
-				    builder.setTitle("Задача решена правильно");
+				    builder.setTitle("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 				    builder.setInverseBackgroundForced(true);
-					builder.setPositiveButton("Хорошо!",new DialogInterface.OnClickListener()
+					builder.setPositiveButton("пїЅпїЅпїЅпїЅпїЅпїЅ!",new DialogInterface.OnClickListener()
 				    {
 				        @Override
 				        public void onClick(DialogInterface dialog, int which) 
@@ -72,9 +72,9 @@ public class EqualizeBalanceActivity extends Activity {
 					
 				} else {
 					builder.setIcon(R.drawable.icon_smilered);
-					builder.setTitle("Задача решена с ошибкой");
+					builder.setTitle("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 				    builder.setInverseBackgroundForced(true);
-					builder.setPositiveButton("Перерешать",new DialogInterface.OnClickListener()
+					builder.setPositiveButton("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",new DialogInterface.OnClickListener()
 				    {
 				        @Override
 				        public void onClick(DialogInterface dialog, int which) 
