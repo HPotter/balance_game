@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.sutorei.canvasbalance.adapter.BalanceAdapter;
+import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.TaskData;
 import com.sutorei.canvasbalance.view.BalanceView;
 
@@ -18,7 +21,7 @@ public class CheckoutBalanceMode extends GameMode {
 
 	private TextView taskText;
 	private List<BalanceView> balanceViews;
-	private LinearLayout balanceList;
+	private ViewPager balancePager;
 	
 	public CheckoutBalanceMode(Context context, ViewGroup parentView, TaskData taskData, File extensionStyleFolder) {
 		super(context, parentView, taskData, extensionStyleFolder);
@@ -49,17 +52,17 @@ public class CheckoutBalanceMode extends GameMode {
 	private void inflate() {
 		// create
 		taskText = new TextView(getContext());
-		balanceList = new LinearLayout(getContext());
+		balancePager = new ViewPager(getContext());
 		balanceViews = new ArrayList<BalanceView>();
 		
 		// init
 		taskText.setText(getTaskData().getTaskText());
 
-		for (int i = 0; i < getTaskData().getBalanceData().size(); ++i){
-			BalanceView balanceView = new BalanceView(getContext(), getTaskData(), i, getExtensionStyleFolder());
-			balanceViews.add(balanceView); // wtf is dat constructor
-			balanceList.addView(balanceView);
+		for (BalanceData balanceData : getTaskData().getBalanceData()){
+			BalanceView balanceView = new BalanceView(getContext(), getExtensionStyleFolder(), balanceData);
+			balanceViews.add(balanceView);
 		}
+		balancePager.setAdapter(new BalanceAdapter(balanceViews));
 		
 		// inflate
 		LayoutParams params;
@@ -71,10 +74,10 @@ public class CheckoutBalanceMode extends GameMode {
 		getParentView().addView(taskText, params);
 
 		params = new LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT);
+				LayoutParams.MATCH_PARENT);
 		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		params.addRule(RelativeLayout.BELOW, taskText.getId());
-		getParentView().addView(balanceList, params);
+		getParentView().addView(balancePager, params);
 	}
 
 }

@@ -1,28 +1,33 @@
 package com.sutorei.canvasbalance.view;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.AttributeSet;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.BalanceViewObject;
-import com.sutorei.canvasbalance.domain.TaskData;
 import com.sutorei.canvasbalance.domain.WeightedObject;
 import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
 import com.sutorei.canvasbalance.util.BalanceState;
 
 public class BalanceView extends View {
-	private BalanceBitmapContainer mBalanceBitmaps;
 
 	// important to outside checkout
 	private List<WeightedObject> mObjectsOnLeft, mObjectsOnRight,
@@ -95,7 +100,6 @@ public class BalanceView extends View {
 	private volatile BalanceViewObject mBeamBent;
 	private boolean mInitPlacementFinished, mDragOngoing, taskLoaded;
 	private volatile boolean mAnimationOngoing;
-	private int mDisbalanceOffsetY;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
 	int mLeftCupXAtBalance, mLeftCupYAtBalance;
 	private WeightedObject mDraggedObject = null;
@@ -104,7 +108,7 @@ public class BalanceView extends View {
 	// object origin -1 means left cup, 1 - right cup, 0 - avaliable objects
 	Matrix mRotationAnimation, mRotationPredisposition;
 	private volatile float mDegree;
-	private boolean touchable, fixed;
+	private boolean interactive, fixed;
 	int leftCupObjectOffset;
 	int rightCupObjectOffset;
 
@@ -121,117 +125,84 @@ public class BalanceView extends View {
 		}
 	}
 
-	public BalanceView(Context context, File extensionStyleFolder) {
+	public BalanceView(Context context, File balanceResourceFolder,
+			BalanceData balanceData) {
 		super(context);
 		taskLoaded = false;
-		mBalanceBitmaps = new BalanceBitmapContainer(extensionStyleFolder);
+		BalanceBitmapContainer mBalanceBitmaps = new BalanceBitmapContainer(
+				balanceResourceFolder);
+		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
+		mRightCup = new BalanceViewObject(
+				mBalanceBitmaps.getRightCupBitmap());
+		mBeam = new BalanceViewObject(mBalanceBitmaps.getBeamBitmap());
+		mSupport = new BalanceViewObject(mBalanceBitmaps.getSupportBitmap());
 
 		mRotationAnimation = new Matrix();
 		mRotationPredisposition = new Matrix();
 
-		mObjectsOnLeft = new ArrayList<WeightedObject>();
-		mObjectsOnRight = new ArrayList<WeightedObject>();
-		mAvaliableObjects = new ArrayList<WeightedObject>();
-
-		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
-		mRightCup = new BalanceViewObject(mBalanceBitmaps.getRightCupBitmap());
-		mBeam = new BalanceViewObject(mBalanceBitmaps.getBeamBitmap());
-		mSupport = new BalanceViewObject(mBalanceBitmaps.getSupportBitmap());
-
 		mWeightOnLeft = 0;
 		mWeightOnRight = 0;
 
-		mDisbalanceOffsetY = 42;
 		mAnimationOngoing = false;
 		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mAntiAliasingPaint.setFilterBitmap(true);
 		mAntiAliasingPaint.setDither(true);
 		mInitPlacementFinished = false;
 
-		mPreviousState = BalanceState.EQUAL;
-		mCurrentState = mPreviousState;
-		touchable = true;
-		this.setOnTouchListener(new BalanceOnTouchListener());
-	}
-
-	public BalanceView(Context context, TaskData taskData, int i, File extensionStyleFolder) {
-		super(context);
-		taskLoaded = false;
-		mBalanceBitmaps = new BalanceBitmapContainer(extensionStyleFolder);
-
-		mRotationAnimation = new Matrix();
-		mRotationPredisposition = new Matrix();
-
-		mObjectsOnLeft = new ArrayList<WeightedObject>();
-		mObjectsOnRight = new ArrayList<WeightedObject>();
-		mAvaliableObjects = new ArrayList<WeightedObject>();
-
-		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
-		mRightCup = new BalanceViewObject(mBalanceBitmaps.getRightCupBitmap());
-		mBeam = new BalanceViewObject(mBalanceBitmaps.getBeamBitmap());
-		mSupport = new BalanceViewObject(mBalanceBitmaps.getSupportBitmap());
-
-		mWeightOnLeft = 0;
-		mWeightOnRight = 0;
-
-		mDisbalanceOffsetY = 42;
-		mAnimationOngoing = false;
-		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mAntiAliasingPaint.setFilterBitmap(true);
-		mAntiAliasingPaint.setDither(true);
-		mInitPlacementFinished = false;
-
-		mPreviousState = BalanceState.EQUAL;
-		mCurrentState = mPreviousState;
-		touchable = true;
 		mAlphaPaint = new Paint();
 		mAlphaPaint.setAlpha(100);
 
-		loadAndStartTask(context, taskData.getBalanceData().get(i)
-				.getObjectsOnLeft(), taskData.getBalanceData().get(i)
-				.getObjectsOnRight(), taskData.getBalanceData().get(i)
-				.getAvaliableObjects(), taskData.getBalanceData().get(i)
-				.isInteractive(), taskData.getBalanceData().get(i).isFixed(),
-				taskData.getBalanceData().get(i).getBalanceState());
-
 		this.setOnTouchListener(new BalanceOnTouchListener());
+
+		loadAndStartTask(balanceData);
 	}
 
-	public BalanceView(Context context, AttributeSet attrs, File extensionStyleFolder) {
-		super(context, attrs);
-		taskLoaded = false;
+	public void loadAndStartTask(BalanceData balanceData) {
+		this.mObjectsOnLeft = balanceData.getObjectsOnLeft();
+		this.mObjectsOnRight = balanceData.getObjectsOnRight();
+		this.mAvaliableObjects = balanceData.getAvaliableObjects();
+		this.fixed = balanceData.isFixed();
+		this.interactive = balanceData.isInteractive();
+		this.setCurrentState(balanceData.getBalanceState());
+		
+		int maxHeight = BASE_HEIGHT / 4;
+		for (WeightedObject wo : mObjectsOnLeft) {
+			mWeightOnLeft += wo.getWeight();
+			if (wo.getBitmap().getHeight() > maxHeight) {
+				maxHeight = wo.getBitmap().getHeight();
+			}
+		}
+		for (WeightedObject wo : mObjectsOnRight) {
+			mWeightOnRight += wo.getWeight();
+			if (wo.getBitmap().getHeight() > maxHeight) {
+				maxHeight = wo.getBitmap().getHeight();
+			}
+		}
 
-		mRotationAnimation = new Matrix();
-		mRotationPredisposition = new Matrix();
+		for (WeightedObject wo : mAvaliableObjects) {
+			if (wo.getBitmap().getHeight() > maxHeight) {
+				maxHeight = wo.getBitmap().getHeight();
+			}
+		}
+		objectScaleRatio = ((float) BASE_HEIGHT / 4) / maxHeight;
 
-		mBalanceBitmaps = new BalanceBitmapContainer(extensionStyleFolder);
+		for (WeightedObject wo : mObjectsOnLeft) {
+			wo.setScalingRatio(objectScaleRatio);
+		}
+		for (WeightedObject wo : mObjectsOnRight) {
+			wo.setScalingRatio(objectScaleRatio);
+		}
+		for (WeightedObject wo : mAvaliableObjects) {
+			wo.setScalingRatio(objectScaleRatio);
+		}
 
-		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
-		mRightCup = new BalanceViewObject(mBalanceBitmaps.getRightCupBitmap());
-		mBeam = new BalanceViewObject(mBalanceBitmaps.getBeamBitmap());
-		mSupport = new BalanceViewObject(mBalanceBitmaps.getSupportBitmap());
+		taskLoaded = true;
 
-		mObjectsOnLeft = new ArrayList<WeightedObject>();
-		mObjectsOnRight = new ArrayList<WeightedObject>();
-		mAvaliableObjects = new ArrayList<WeightedObject>();
-
-		mWeightOnLeft = 0;
-		mWeightOnRight = 0;
-
+		mPreviousState = balanceData.getBalanceState();
 		mInitPlacementFinished = false;
-
-		mDisbalanceOffsetY = 45;
-
 		mAnimationOngoing = false;
-
-		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mAntiAliasingPaint.setFilterBitmap(true);
-		mAntiAliasingPaint.setDither(true);
-		mAlphaPaint = new Paint();
-		mAlphaPaint.setAlpha(100);
-
-		touchable = true;
-		this.setOnTouchListener(new BalanceOnTouchListener());
+		mDraggedObject = null;
+		invalidate();
 	}
 
 	public void loadAndStartTask(Context context,
@@ -275,7 +246,7 @@ public class BalanceView extends View {
 			wo.setScalingRatio(objectScaleRatio);
 		}
 
-		touchable = _isTouchable;
+		interactive = _isTouchable;
 		fixed = _isFixed;
 		taskLoaded = true;
 
@@ -288,16 +259,15 @@ public class BalanceView extends View {
 	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		
+
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		int desiredWidth = BASE_WIDTH;
 		int desiredHeight = BASE_HEIGHT;
-		float proportion = (float)desiredWidth / desiredHeight;
+		float proportion = (float) desiredWidth / desiredHeight;
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-		Log.d("Sizes", Integer.toString(heightSize) + " " + Integer.toString(widthSize));
 		int mandatoryHeight = desiredHeight;
 		int mandatoryWidth = desiredWidth;
 
@@ -311,20 +281,17 @@ public class BalanceView extends View {
 			mandatoryHeight = widthSize;
 		}
 
-		float derivedProportion = (float)mandatoryWidth / mandatoryHeight;
-		Log.d("proportion", ""+proportion + " " + derivedProportion);
+		float derivedProportion = (float) mandatoryWidth / mandatoryHeight;
 		if (derivedProportion >= proportion) {
 			setMeasuredDimension(Math.round(proportion * mandatoryHeight),
 					mandatoryHeight);
 			this.mViewWidth = Math.round(proportion * mandatoryHeight);
 			this.mViewHeight = mandatoryHeight;
-			Log.d("Sizes", "Height override" + Integer.toString(mViewWidth) + " " + Integer.toString(mViewHeight));
 		} else {
 			setMeasuredDimension(mandatoryWidth,
-					Math.round(mandatoryWidth/proportion));
-			this.mViewWidth =  mandatoryWidth;
-			this.mViewHeight = Math.round(mandatoryWidth/proportion);
-			Log.d("Sizes", "Width override" + Integer.toString(mViewWidth) + " " + Integer.toString(mViewHeight));
+					Math.round(mandatoryWidth / proportion));
+			this.mViewWidth = mandatoryWidth;
+			this.mViewHeight = Math.round(mandatoryWidth / proportion);
 		}
 	}
 
@@ -334,8 +301,6 @@ public class BalanceView extends View {
 	}
 
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-	//	this.mViewWidth = w;
-	//	this.mViewHeight = h;
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
@@ -434,18 +399,12 @@ public class BalanceView extends View {
 						+ mBeam.getBitmap().getHeight() / 2);
 				mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
 						/ 2 + 41);
-//				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-//						/ 2 - mLeftCup.getBitmap().getHeight() + 5
-//						+ mDisbalanceOffsetY);
 				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
 						/ 2 - mLeftCup.getBitmap().getHeight() + 49);
 				mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
 						- mRightCup.getBitmap().getWidth() / 2 - 41);
 				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
 						/ 2 - mRightCup.getBitmap().getHeight() - 39);
-//				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-//						/ 2 - mRightCup.getBitmap().getHeight() + 5
-//						- mDisbalanceOffsetY);
 				mRotationAnimation.postTranslate(mBeamBent.getX(),
 						mBeamBent.getY());
 				mDegree = -14;
@@ -465,16 +424,10 @@ public class BalanceView extends View {
 						/ 2 + 41);
 				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
 						/ 2 - mLeftCup.getBitmap().getHeight() - 39);
-//				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-//						/ 2 - mLeftCup.getBitmap().getHeight() + 5
-//						- mDisbalanceOffsetY);
 				mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
 						- mRightCup.getBitmap().getWidth() / 2 - 41);
 				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
 						/ 2 - mRightCup.getBitmap().getHeight() + 49);
-//				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-//						/ 2 - mRightCup.getBitmap().getHeight() + 1
-//						+ mDisbalanceOffsetY);
 				mRotationAnimation.postTranslate(mBeamBent.getX(),
 						mBeamBent.getY());
 				mDegree = 14;
@@ -489,28 +442,15 @@ public class BalanceView extends View {
 		rightCupObjectOffset = 0;
 		int xOffset = 5;
 		int yOffset = Math.round(BASE_HEIGHT * 19 / 20);
-		Log.d("HEIGHT_COEF", Float.toString(objectScaleRatio));
 		for (WeightedObject wo : mAvaliableObjects) {
 			wo.setX(xOffset);
 			wo.setY(yOffset - Math.round(wo.getHeight()));
-			Log.d("avaliable measures",
-					Float.toString(wo.getX()) + " " + Float.toString(wo.getY())
-							+ " " + Float.toString(wo.getWidth()) + " "
-							+ Float.toString(wo.getHeight()));
 			canvas.drawBitmap(wo.getBitmap(), null,
 					new RectF(wo.getX(), wo.getY(), wo.getX() + wo.getWidth(),
 							wo.getY() + wo.getHeight()), mAntiAliasingPaint);
-			/*
-			 * canvas.drawBitmap(wo.getBitmap(), wo.getX(), wo.getY(),
-			 * mAntiAliasingPaint);
-			 */
 			xOffset += 5 + wo.getBitmap().getWidth();
 		}
 		for (WeightedObject wo : mObjectsOnRight) {
-			Log.d("right measures",
-					Float.toString(wo.getX()) + " " + Float.toString(wo.getY())
-							+ " " + Float.toString(wo.getWidth()) + " "
-							+ Float.toString(wo.getHeight()));
 			wo.setX(mRightCup.getX() - rightCupObjectOffset
 					+ mRightCup.getBitmap().getWidth() * 8 / 9
 					- Math.round(wo.getWidth()));
@@ -519,19 +459,11 @@ public class BalanceView extends View {
 			canvas.drawBitmap(wo.getBitmap(), null,
 					new RectF(wo.getX(), wo.getY(), wo.getX() + wo.getWidth(),
 							wo.getY() + wo.getHeight()), mAntiAliasingPaint);
-			/*
-			 * canvas.drawBitmap(wo.getBitmap(), wo.getX(), wo.getY(),
-			 * mAntiAliasingPaint);
-			 */
 			rightCupObjectOffset = (rightCupObjectOffset + mRightCup
 					.getBitmap().getWidth() / 4)
 					% (mRightCup.getBitmap().getWidth() * 7 / 11);
 		}
 		for (WeightedObject wo : mObjectsOnLeft) {
-			Log.d("left measures",
-					Float.toString(wo.getX()) + " " + Float.toString(wo.getY())
-							+ " " + Float.toString(wo.getWidth()) + " "
-							+ Float.toString(wo.getHeight()));
 			wo.setX(mLeftCup.getX() + leftCupObjectOffset
 					+ mLeftCup.getBitmap().getWidth() / 7);
 			wo.setY(mLeftCup.getY() + mLeftCup.getBitmap().getHeight() * 1 / 4
@@ -539,10 +471,6 @@ public class BalanceView extends View {
 			canvas.drawBitmap(wo.getBitmap(), null,
 					new RectF(wo.getX(), wo.getY(), wo.getX() + wo.getWidth(),
 							wo.getY() + wo.getHeight()), mAntiAliasingPaint);
-			/*
-			 * canvas.drawBitmap(wo.getBitmap(), wo.getX(), wo.getY(),
-			 * mAntiAliasingPaint);
-			 */
 			leftCupObjectOffset = (leftCupObjectOffset + mLeftCup.getBitmap()
 					.getWidth() / 4)
 					% (mRightCup.getBitmap().getWidth() * 7 / 11);
@@ -617,13 +545,56 @@ public class BalanceView extends View {
 			}
 			mDegree = degreeClause;
 			BalanceView.this.postInvalidate();
-			Log.d("SIGNUMS",
-					Float.toString(mDegree) + " "
-							+ Float.toString(degreeClause));
 			mAnimationOngoing = false;
 		}
 
 	}
+	@Override
+	  public Parcelable onSaveInstanceState() {
+
+	    Bundle bundle = new Bundle();
+	    ObjectMapper mapper = new ObjectMapper();
+	    bundle.putParcelable("instanceState", super.onSaveInstanceState());
+	    BalanceData bd = new BalanceData();
+	    bd.setAvaliableObjects(this.mAvaliableObjects);
+	    bd.setBalanceState(this.getCurrentState());
+	    bd.setFixed(this.fixed);
+	    bd.setInteractive(this.interactive);
+	    bd.setObjectsOnLeft(this.mObjectsOnLeft);
+	    bd.setObjectsOnRight(this.mObjectsOnRight);
+	    try {
+			bundle.putString("stateToSave", mapper.writeValueAsString(bd));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			Log.e("EXCEPTION", "Failed to save instance state " + e.getMessage());
+		}
+
+	    return bundle;
+	  }
+
+	  @Override
+	  public void onRestoreInstanceState(Parcelable state) {
+
+	    if (state instanceof Bundle) {
+	      Bundle bundle = (Bundle) state;
+	      ObjectMapper mapper = new ObjectMapper();
+	      super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
+	      try {
+			BalanceData bd = mapper.readValue(bundle.getString("stateToSave"), BalanceData.class);
+			taskLoaded = false;
+			loadAndStartTask(bd);
+		} catch (JsonParseException e) {
+			Log.d("EXCEPTION", "Failed to load instance state " + e.getMessage());
+		} catch (JsonMappingException e) {
+			Log.d("EXCEPTION", "Failed to load instance state " + e.getMessage());
+		} catch (IOException e) {
+			Log.d("EXCEPTION", "Failed to load instance state " + e.getMessage());
+		}
+	      return;
+	    }
+
+	    super.onRestoreInstanceState(state);
+	  }
 
 	private class BalanceOnTouchListener implements View.OnTouchListener {
 
@@ -633,7 +604,7 @@ public class BalanceView extends View {
 			int eventY = (int) (event.getY() / totalScaleRatio);
 			if (mAnimationOngoing)
 				return false;
-			if (!touchable)
+			if (!interactive)
 				return false;
 			switch (event.getAction()) {
 			case (MotionEvent.ACTION_DOWN):
@@ -793,6 +764,10 @@ public class BalanceView extends View {
 			}
 			return true;
 		}
-
+	}
+	
+	public static Bitmap generatePreview(BalanceData balanceData){
+		//TODO
+		return null;
 	}
 }

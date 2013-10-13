@@ -60,7 +60,7 @@ public class CheckoutBalanceActivity extends Activity {
 		
 		balanceViews = new ArrayList<BalanceView>();
 		for (int i = 0; i < taskData.getBalanceData().size(); ++i){
-			balanceViews.add(new BalanceView(this, taskData, i, null));
+//			balanceViews.add(new BalanceView(this, taskData, i, null));
 			balanceList.addView(balanceViews.get(i));
 		}
 		buttonCheck.setOnClickListener(new ImageButton.OnClickListener(){
