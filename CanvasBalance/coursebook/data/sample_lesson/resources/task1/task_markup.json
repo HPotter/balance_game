@@ -1,0 +1,26 @@
+{
+	"task_type":"ESTABLISH_BALANCE",
+	"task_text":"Establish balance plz",
+	"balance_data":
+	[
+		{
+			"state":0,
+			"fixed":false,
+			"interactive":true,
+			"left_objects":[],
+			"right_objects":[],
+			"available_objects":
+			[
+				{
+					"image":"apple.png",
+					"weight":2
+				},
+				{
+					"image":"banana.png",
+					"weight":2
+				}
+			]
+		}
+	],
+	"available_objects":[]
+}

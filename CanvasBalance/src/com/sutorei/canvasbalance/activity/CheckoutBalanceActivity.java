@@ -3,24 +3,23 @@ package com.sutorei.canvasbalance.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sutorei.canvasbalance.R;
-import com.sutorei.canvasbalance.domain.TaskData;
-import com.sutorei.canvasbalance.storage.PathConstants;
-import com.sutorei.canvasbalance.storage.SQLiteDbConnection;
-import com.sutorei.canvasbalance.view.BalanceView;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.sutorei.canvasbalance.R;
+import com.sutorei.canvasbalance.domain.TaskData;
+import com.sutorei.canvasbalance.storage.PathConstants;
+import com.sutorei.canvasbalance.view.BalanceView;
 
 public class CheckoutBalanceActivity extends Activity {
 	
@@ -54,19 +53,20 @@ public class CheckoutBalanceActivity extends Activity {
 			}
 		});
 		
-		if (!getIntent().hasExtra(LevelActivity.LEVEL_NUMBER_EXTRA)) {
-			throw new IllegalArgumentException("No level number provided");
-		} else {
-			levelNumber = getIntent().getIntExtra(LevelActivity.LEVEL_NUMBER_EXTRA, 0);
-		}
+//		if (!getIntent().hasExtra(LevelActivity.LEVEL_NUMBER_EXTRA)) {
+//			throw new IllegalArgumentException("No level number provided");
+//		} else {
+//			levelNumber = getIntent().getIntExtra(LevelActivity.LEVEL_NUMBER_EXTRA, 0);
+//		}
+//		
+//		if (!getIntent().hasExtra(LevelActivity.LEVEL_ID_EXTRA)) {
+//			throw new IllegalArgumentException("No level id provided");
+//		} else {
+//			levelId = getIntent().getIntExtra(LevelActivity.LEVEL_ID_EXTRA, 0);
+//		}
 		
-		if (!getIntent().hasExtra(LevelActivity.LEVEL_ID_EXTRA)) {
-			throw new IllegalArgumentException("No level id provided");
-		} else {
-			levelId = getIntent().getIntExtra(LevelActivity.LEVEL_ID_EXTRA, 0);
-		}
-		
-		final TaskData taskData = SQLiteDbConnection.getInstance().getLevelData(levelId);
+//		final TaskData taskData = SQLiteDbConnection.getInstance().getLevelData(levelId);
+		final TaskData taskData = null;
 		
 		taskTitle.setText("Lesson " + String.valueOf(levelNumber + 1));
 		taskText.setText(taskData.getTaskText());

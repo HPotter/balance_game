@@ -1,0 +1,10 @@
+{
+	"book_id":"sample_book2",
+	"book_version":1,
+	"book_name":"Sample Balance Book",
+	"book_description":"Book sample description",
+	"book_lessons":
+	[
+		"sample_lesson"
+	]
+}

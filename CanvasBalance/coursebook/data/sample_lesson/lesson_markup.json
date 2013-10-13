@@ -1,0 +1,15 @@
+{
+	"lesson_id":"sample_lesson",
+	"lesson_version":1,
+	"lesson_name":"my sample lesson",
+	"lesson_description":"making these jsons is too boring",
+	"lesson_tasks":
+	[
+		{
+			"task_id":"task1",
+			"task_version":1,
+			"task_alias":"balance",
+			"task_name":"A task."
+		}
+	]
+}

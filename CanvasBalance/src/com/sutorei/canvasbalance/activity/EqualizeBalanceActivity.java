@@ -2,6 +2,7 @@ package com.sutorei.canvasbalance.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,12 +11,10 @@ import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.content.DialogInterface;
 
 import com.sutorei.canvasbalance.R;
 import com.sutorei.canvasbalance.domain.TaskData;
 import com.sutorei.canvasbalance.storage.PathConstants;
-import com.sutorei.canvasbalance.storage.SQLiteDbConnection;
 import com.sutorei.canvasbalance.util.BalanceState;
 import com.sutorei.canvasbalance.view.BalanceView;
 
@@ -92,19 +91,20 @@ public class EqualizeBalanceActivity extends Activity {
 				editor.commit();
 			}
 		});
-		if (!getIntent().hasExtra(LevelActivity.LEVEL_NUMBER_EXTRA)) {
-			throw new IllegalArgumentException("No level number provided");
-		} else {
-			levelNumber = getIntent().getIntExtra(LevelActivity.LEVEL_NUMBER_EXTRA, 0);
-		}
-		
-		if (!getIntent().hasExtra(LevelActivity.LEVEL_ID_EXTRA)) {
-			throw new IllegalArgumentException("No level id provided");
-		} else {
-			levelId = getIntent().getIntExtra(LevelActivity.LEVEL_ID_EXTRA, 0);
-		}
-		
-		final TaskData taskData = SQLiteDbConnection.getInstance().getLevelData(levelId);
+//		if (!getIntent().hasExtra(LevelActivity.LEVEL_NUMBER_EXTRA)) {
+//			throw new IllegalArgumentException("No level number provided");
+//		} else {
+//			levelNumber = getIntent().getIntExtra(LevelActivity.LEVEL_NUMBER_EXTRA, 0);
+//		}
+//		
+//		if (!getIntent().hasExtra(LevelActivity.LEVEL_ID_EXTRA)) {
+//			throw new IllegalArgumentException("No level id provided");
+//		} else {
+//			levelId = getIntent().getIntExtra(LevelActivity.LEVEL_ID_EXTRA, 0);
+//		}
+//		
+//		final TaskData taskData = SQLiteDbConnection.getInstance().getLevelData(levelId);
+		final TaskData taskData = null;
 		
 		taskTitle.setText(R.string.excercise + String.valueOf(levelNumber + 1));
 		taskText.setText(taskData.getTaskText());

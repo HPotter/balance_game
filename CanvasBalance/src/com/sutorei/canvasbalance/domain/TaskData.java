@@ -1,13 +1,92 @@
 package com.sutorei.canvasbalance.domain;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+
+import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TaskData {
 
 	private int taskNumber, lessonNumber;
 	private TaskType taskType;
+	private String taskText;
 	private List<BalanceData> balanceData;
 	private List<WeightedObject> questions;
+
+	private static String KEY_TASK_TYPE = "task_type";
+	private static String KEY_TASK_TEXT = "task_text";
+	private static String KEY_BALANCE_DATA = "balance_data";
+	private static String KEY_AVAILABLE_OBJECTS = "available_objects";
+
+	public static TaskData fromJsonFile(File jsonFile, File taskFolder) throws ParseException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = null;
+		try {
+			rootNode = mapper.readTree(jsonFile);
+		} catch (JsonProcessingException e) {
+			Log.e("Parser(File file)", "JsonProcessingException while parsing "
+					+ jsonFile.getAbsolutePath());
+			e.printStackTrace();
+		} catch (IOException e) {
+			Log.e("Parser(File file)",
+					"IOException while parsing file " + jsonFile.getAbsolutePath());
+			e.printStackTrace();
+		}
+
+		return fromJsonNode(rootNode, taskFolder);
+	}
+
+	protected static TaskData fromJsonNode(JsonNode rootNode, File taskFolder) throws ParseException {
+		if (!rootNode.has(KEY_TASK_TYPE)) {
+			throw new ParseException(KEY_TASK_TYPE + " not found in json", 0);
+		}
+		if (!rootNode.has(KEY_TASK_TEXT)) {
+			throw new ParseException(KEY_TASK_TEXT + " not found in json", 0);
+		}
+		
+		TaskData result = new TaskData();
+		
+		result.setTaskType(TaskType.valueOf(rootNode.path(KEY_TASK_TYPE)
+				.asText()));
+		result.setTaskText(rootNode.path(KEY_TASK_TEXT).asText());
+		if(rootNode.has(KEY_BALANCE_DATA)) {
+			JsonNode balanceDataListNode = rootNode.path(KEY_BALANCE_DATA);
+			ArrayList<BalanceData> balanceDatas = new ArrayList<BalanceData>(balanceDataListNode.size());
+			
+			for (JsonNode balanceDataNode : balanceDataListNode) {
+				balanceDatas.add(BalanceData.fromJsonNode(balanceDataNode, taskFolder + File.separator));
+			}
+			
+			result.setBalanceData(balanceDatas);
+		}
+		if(rootNode.has(KEY_AVAILABLE_OBJECTS)) {
+			JsonNode balanceAvailableObjectListNode = rootNode.path(KEY_AVAILABLE_OBJECTS);
+			ArrayList<WeightedObject> balanceAvailableObjects = new ArrayList<WeightedObject>(balanceAvailableObjectListNode.size());
+			
+			for (JsonNode balanceAvailableObjectNode : balanceAvailableObjectListNode) {
+				balanceAvailableObjects.add(WeightedObject.fromJsonNode(balanceAvailableObjectNode, taskFolder + File.separator));
+			}
+			
+			result.setQuestions(balanceAvailableObjects);
+		}
+		
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "TaskData [taskNumber=" + taskNumber + ", lessonNumber="
+				+ lessonNumber + ", taskType=" + taskType + ", taskText="
+				+ taskText + ", balanceData=" + balanceData + ", questions="
+				+ questions + "]";
+	}
 
 	/**
 	 * @return the questions
@@ -17,13 +96,12 @@ public class TaskData {
 	}
 
 	/**
-	 * @param questions the questions to set
+	 * @param questions
+	 *            the questions to set
 	 */
 	public void setQuestions(List<WeightedObject> questions) {
 		this.questions = questions;
 	}
-
-	private String taskText;
 
 	public int getTaskNumber() {
 		return taskNumber;

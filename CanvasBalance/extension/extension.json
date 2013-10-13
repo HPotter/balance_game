@@ -1,0 +1,19 @@
+{
+    "package":"com.sutorei.canvasbalance",
+    "alias":"balance",
+    "version":2,
+    "style":"default2",
+    "imports":
+    [
+        {
+            "button" : "button_check.png",
+            "pressed" : "button_check_pressed.png",
+            "method" : "check"
+        },
+        {
+            "button" : "button_restart.png",
+            "pressed" : "button_restart_pressed.png",
+            "method" : "restart"
+        }
+    ]
+}
