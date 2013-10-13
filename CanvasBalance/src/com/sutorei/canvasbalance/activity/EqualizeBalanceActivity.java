@@ -35,7 +35,7 @@ public class EqualizeBalanceActivity extends Activity {
 
 		setContentView(R.layout.activity_equalize_balance);
 		
-		balance = new BalanceView(this);
+		balance = new BalanceView(this, null);
 		setContentView(R.layout.game_layout);
 		taskText = (TextView)findViewById(R.id.task_description);
 		taskTitle = (TextView)findViewById(R.id.task_title);

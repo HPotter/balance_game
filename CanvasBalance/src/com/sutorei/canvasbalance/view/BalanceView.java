@@ -1,5 +1,6 @@
 package com.sutorei.canvasbalance.view;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -120,10 +121,10 @@ public class BalanceView extends View {
 		}
 	}
 
-	public BalanceView(Context context) {
+	public BalanceView(Context context, File extensionStyleFolder) {
 		super(context);
 		taskLoaded = false;
-		mBalanceBitmaps = new BalanceBitmapContainer(context);
+		mBalanceBitmaps = new BalanceBitmapContainer(extensionStyleFolder);
 
 		mRotationAnimation = new Matrix();
 		mRotationPredisposition = new Matrix();
@@ -153,10 +154,10 @@ public class BalanceView extends View {
 		this.setOnTouchListener(new BalanceOnTouchListener());
 	}
 
-	public BalanceView(Context context, TaskData taskData, int i) {
+	public BalanceView(Context context, TaskData taskData, int i, File extensionStyleFolder) {
 		super(context);
 		taskLoaded = false;
-		mBalanceBitmaps = new BalanceBitmapContainer(context);
+		mBalanceBitmaps = new BalanceBitmapContainer(extensionStyleFolder);
 
 		mRotationAnimation = new Matrix();
 		mRotationPredisposition = new Matrix();
@@ -196,14 +197,14 @@ public class BalanceView extends View {
 		this.setOnTouchListener(new BalanceOnTouchListener());
 	}
 
-	public BalanceView(Context context, AttributeSet attrs) {
+	public BalanceView(Context context, AttributeSet attrs, File extensionStyleFolder) {
 		super(context, attrs);
 		taskLoaded = false;
 
 		mRotationAnimation = new Matrix();
 		mRotationPredisposition = new Matrix();
 
-		mBalanceBitmaps = new BalanceBitmapContainer(context);
+		mBalanceBitmaps = new BalanceBitmapContainer(extensionStyleFolder);
 
 		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
 		mRightCup = new BalanceViewObject(mBalanceBitmaps.getRightCupBitmap());

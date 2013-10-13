@@ -1,5 +1,5 @@
 {
-	"task_type":"ESTABLISH_BALANCE",
+	"task_type":"CHECKOUT_BALANCE",
 	"task_text":"Establish balance plz",
 	"balance_data":
 	[
@@ -12,11 +12,11 @@
 			"available_objects":
 			[
 				{
-					"image":"apple.png",
+					"image":"melon.png",
 					"weight":2
 				},
 				{
-					"image":"banana.png",
+					"image":"watermelon.png",
 					"weight":2
 				}
 			]

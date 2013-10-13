@@ -2,7 +2,7 @@
     "package":"com.sutorei.canvasbalance",
     "alias":"balance",
     "version":2,
-    "style":"default2",
+    "style":"default",
     "imports":
     [
         {

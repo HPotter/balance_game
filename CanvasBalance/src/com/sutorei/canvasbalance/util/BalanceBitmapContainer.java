@@ -1,21 +1,22 @@
 package com.sutorei.canvasbalance.util;
 
-import com.sutorei.canvasbalance.R;
+import java.io.File;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import com.sutorei.canvasbalance.R;
 
 public class BalanceBitmapContainer {
 	private Bitmap leftCupBitmap, rightCupBitmap, beamBitmap, supportBitmap;
 	
-	public BalanceBitmapContainer(Context context){
-		Resources r = context.getResources();
-		leftCupBitmap = BitmapFactory.decodeResource(r, R.drawable.cup_left);
-		rightCupBitmap = BitmapFactory.decodeResource(r, R.drawable.cup_right);
-		beamBitmap = BitmapFactory.decodeResource(r, R.drawable.balance);
-		supportBitmap = BitmapFactory.decodeResource(r, R.drawable.support);
+	public BalanceBitmapContainer(File imageFolder){
+		leftCupBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "cup_left.png");
+		rightCupBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "cup_right.png");
+		beamBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "balance.png");
+		Log.e("", imageFolder + File.separator + "balance.png");
+		supportBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "support.png");
 	}
 
 	public Bitmap getLeftCupBitmap() {

@@ -53,19 +53,6 @@ public class CheckoutBalanceActivity extends Activity {
 			}
 		});
 		
-//		if (!getIntent().hasExtra(LevelActivity.LEVEL_NUMBER_EXTRA)) {
-//			throw new IllegalArgumentException("No level number provided");
-//		} else {
-//			levelNumber = getIntent().getIntExtra(LevelActivity.LEVEL_NUMBER_EXTRA, 0);
-//		}
-//		
-//		if (!getIntent().hasExtra(LevelActivity.LEVEL_ID_EXTRA)) {
-//			throw new IllegalArgumentException("No level id provided");
-//		} else {
-//			levelId = getIntent().getIntExtra(LevelActivity.LEVEL_ID_EXTRA, 0);
-//		}
-		
-//		final TaskData taskData = SQLiteDbConnection.getInstance().getLevelData(levelId);
 		final TaskData taskData = null;
 		
 		taskTitle.setText("Lesson " + String.valueOf(levelNumber + 1));
@@ -73,7 +60,7 @@ public class CheckoutBalanceActivity extends Activity {
 		
 		balanceViews = new ArrayList<BalanceView>();
 		for (int i = 0; i < taskData.getBalanceData().size(); ++i){
-			balanceViews.add(new BalanceView(this, taskData, i));
+			balanceViews.add(new BalanceView(this, taskData, i, null));
 			balanceList.addView(balanceViews.get(i));
 		}
 		buttonCheck.setOnClickListener(new ImageButton.OnClickListener(){
