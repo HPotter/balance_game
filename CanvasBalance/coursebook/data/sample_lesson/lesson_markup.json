@@ -10,6 +10,12 @@
 			"task_version":1,
 			"task_alias":"balance",
 			"task_name":"A task."
+		},
+		{
+			"task_id":"task2",
+			"task_version":1,
+			"task_alias":"balance",
+			"task_name":"Task with two balances."
 		}
 	]
 }

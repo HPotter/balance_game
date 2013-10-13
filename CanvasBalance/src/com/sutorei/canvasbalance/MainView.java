@@ -31,7 +31,6 @@ public class MainView extends RelativeLayout {
 			break;
 		case CHECKOUT_BALANCE:
 			mGameMode = new CheckoutBalanceMode(context, this, taskData, extensionStyleFolder);
-			Log.d("a", taskData.toString());
 			break;
 		case FIND_MASS:
 			break;
@@ -54,14 +53,10 @@ public class MainView extends RelativeLayout {
 
 	public void check() {
 		mExtensionListener.onCheck(mGameMode.check());
-		Toast.makeText(getContext(), "Check button pressed", Toast.LENGTH_SHORT)
-				.show();
 	}
 
 	public void restart() {
 		mGameMode.restart();
 		mExtensionListener.onRestart();
-		Toast.makeText(getContext(), "Restart button pressed",
-				Toast.LENGTH_SHORT).show();
 	}
 }

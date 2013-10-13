@@ -9,25 +9,25 @@ import android.view.View;
 import com.sutorei.canvasbalance.view.BalanceView;
 
 public class BalanceAdapter extends PagerAdapter {
-	
+
 	List<BalanceView> pages;
-	
-	public BalanceAdapter(List<BalanceView> pages){
+
+	public BalanceAdapter(List<BalanceView> pages) {
 		this.pages = pages;
 	}
 
 	@Override
-    public Object instantiateItem(View collection, int position){
-        View v = pages.get(position);
-        ((ViewPager)collection).addView(v, 0);
-        return v;
-    }
-    
-    @Override
-    public void destroyItem(View collection, int position, Object view){
-    	((ViewPager) collection).removeView((View) view);
-    }
-	
+	public Object instantiateItem(View collection, int position) {
+		View v = pages.get(position);
+		((ViewPager) collection).addView(v, 0);
+		return v;
+	}
+
+	@Override
+	public void destroyItem(View collection, int position, Object view) {
+		((ViewPager) collection).removeView((View) view);
+	}
+
 	@Override
 	public int getCount() {
 		return pages.size();
@@ -38,4 +38,13 @@ public class BalanceAdapter extends PagerAdapter {
 		return arg0.equals(arg1);
 	}
 
+	@Override
+	public CharSequence getPageTitle(int position) {
+		return "Весы " + position;
+	}
+
+	@Override
+	public float getPageWidth(int position) {
+		return 0.8f;
+	}
 }

@@ -2,6 +2,7 @@ package com.sutorei.canvasbalance.view;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -92,8 +93,8 @@ public class BalanceView extends View {
 	private float mWeightOnLeft, mWeightOnRight;
 	private BalanceState mPreviousState, mCurrentState;
 
-	private static final int BASE_WIDTH = 800;
-	private static final int BASE_HEIGHT = 600;
+	private static final int BASE_WIDTH = 800; // XXX XXX XXX
+	private static final int BASE_HEIGHT = 600; // XXX XXX XXX
 
 	// inner logic
 	private BalanceViewObject mLeftCup, mRightCup, mBeam, mSupport;
@@ -132,8 +133,7 @@ public class BalanceView extends View {
 		BalanceBitmapContainer mBalanceBitmaps = new BalanceBitmapContainer(
 				balanceResourceFolder);
 		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
-		mRightCup = new BalanceViewObject(
-				mBalanceBitmaps.getRightCupBitmap());
+		mRightCup = new BalanceViewObject(mBalanceBitmaps.getRightCupBitmap());
 		mBeam = new BalanceViewObject(mBalanceBitmaps.getBeamBitmap());
 		mSupport = new BalanceViewObject(mBalanceBitmaps.getSupportBitmap());
 
@@ -164,7 +164,7 @@ public class BalanceView extends View {
 		this.fixed = balanceData.isFixed();
 		this.interactive = balanceData.isInteractive();
 		this.setCurrentState(balanceData.getBalanceState());
-		
+
 		int maxHeight = BASE_HEIGHT / 4;
 		for (WeightedObject wo : mObjectsOnLeft) {
 			mWeightOnLeft += wo.getWeight();
@@ -316,7 +316,8 @@ public class BalanceView extends View {
 		}
 		float scaleWidth = mViewWidth / (float) BASE_WIDTH;
 		float scaleHeight = mViewHeight / (float) BASE_HEIGHT;
-		totalScaleRatio = Math.min(scaleWidth, scaleHeight);
+
+		totalScaleRatio = Math.max(scaleWidth, scaleHeight);
 		canvas.scale(totalScaleRatio, totalScaleRatio);
 		if (!fixed) {
 			mCurrentState = checkBalance();
@@ -549,52 +550,58 @@ public class BalanceView extends View {
 		}
 
 	}
-	@Override
-	  public Parcelable onSaveInstanceState() {
 
-	    Bundle bundle = new Bundle();
-	    ObjectMapper mapper = new ObjectMapper();
-	    bundle.putParcelable("instanceState", super.onSaveInstanceState());
-	    BalanceData bd = new BalanceData();
-	    bd.setAvaliableObjects(this.mAvaliableObjects);
-	    bd.setBalanceState(this.getCurrentState());
-	    bd.setFixed(this.fixed);
-	    bd.setInteractive(this.interactive);
-	    bd.setObjectsOnLeft(this.mObjectsOnLeft);
-	    bd.setObjectsOnRight(this.mObjectsOnRight);
-	    try {
+	@Override
+	public Parcelable onSaveInstanceState() {
+
+		Bundle bundle = new Bundle();
+		ObjectMapper mapper = new ObjectMapper();
+		bundle.putParcelable("instanceState", super.onSaveInstanceState());
+		BalanceData bd = new BalanceData();
+		bd.setAvaliableObjects(this.mAvaliableObjects);
+		bd.setBalanceState(this.getCurrentState());
+		bd.setFixed(this.fixed);
+		bd.setInteractive(this.interactive);
+		bd.setObjectsOnLeft(this.mObjectsOnLeft);
+		bd.setObjectsOnRight(this.mObjectsOnRight);
+		try {
 			bundle.putString("stateToSave", mapper.writeValueAsString(bd));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			Log.e("EXCEPTION", "Failed to save instance state " + e.getMessage());
+			Log.e("EXCEPTION",
+					"Failed to save instance state " + e.getMessage());
 		}
 
-	    return bundle;
-	  }
+		return bundle;
+	}
 
-	  @Override
-	  public void onRestoreInstanceState(Parcelable state) {
+	@Override
+	public void onRestoreInstanceState(Parcelable state) {
 
-	    if (state instanceof Bundle) {
-	      Bundle bundle = (Bundle) state;
-	      ObjectMapper mapper = new ObjectMapper();
-	      super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
-	      try {
-			BalanceData bd = mapper.readValue(bundle.getString("stateToSave"), BalanceData.class);
-			taskLoaded = false;
-			loadAndStartTask(bd);
-		} catch (JsonParseException e) {
-			Log.d("EXCEPTION", "Failed to load instance state " + e.getMessage());
-		} catch (JsonMappingException e) {
-			Log.d("EXCEPTION", "Failed to load instance state " + e.getMessage());
-		} catch (IOException e) {
-			Log.d("EXCEPTION", "Failed to load instance state " + e.getMessage());
+		if (state instanceof Bundle) {
+			Bundle bundle = (Bundle) state;
+			ObjectMapper mapper = new ObjectMapper();
+			super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
+			try {
+				BalanceData bd = mapper.readValue(
+						bundle.getString("stateToSave"), BalanceData.class);
+				taskLoaded = false;
+				loadAndStartTask(bd);
+			} catch (JsonParseException e) {
+				Log.d("EXCEPTION",
+						"Failed to load instance state " + e.getMessage());
+			} catch (JsonMappingException e) {
+				Log.d("EXCEPTION",
+						"Failed to load instance state " + e.getMessage());
+			} catch (IOException e) {
+				Log.d("EXCEPTION",
+						"Failed to load instance state " + e.getMessage());
+			}
+			return;
 		}
-	      return;
-	    }
 
-	    super.onRestoreInstanceState(state);
-	  }
+		super.onRestoreInstanceState(state);
+	}
 
 	private class BalanceOnTouchListener implements View.OnTouchListener {
 
@@ -765,9 +772,9 @@ public class BalanceView extends View {
 			return true;
 		}
 	}
-	
-	public static Bitmap generatePreview(BalanceData balanceData){
-		//TODO
+
+	public static Bitmap generatePreview(BalanceData balanceData) {
+		// TODO
 		return null;
 	}
 }
