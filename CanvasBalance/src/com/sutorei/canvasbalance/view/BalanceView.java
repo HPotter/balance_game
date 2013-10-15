@@ -306,18 +306,13 @@ public class BalanceView extends View {
 
 	@Override
 	public void onDraw(Canvas canvas) {
-		// super.onDraw(canvas);
-		drawOnCanvas(canvas);
-	}
-
-	public void drawOnCanvas(Canvas canvas) {
 		if (!taskLoaded) {
 			return;
 		}
 		float scaleWidth = mViewWidth / (float) BASE_WIDTH;
 		float scaleHeight = mViewHeight / (float) BASE_HEIGHT;
 
-		totalScaleRatio = Math.max(scaleWidth, scaleHeight);
+		totalScaleRatio = Math.min(scaleWidth, scaleHeight);
 		canvas.scale(totalScaleRatio, totalScaleRatio);
 		if (!fixed) {
 			mCurrentState = checkBalance();

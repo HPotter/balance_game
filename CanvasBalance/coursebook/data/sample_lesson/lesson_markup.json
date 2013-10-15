@@ -16,6 +16,12 @@
 			"task_version":1,
 			"task_alias":"balance",
 			"task_name":"Task with two balances."
-		}
+		},
+		{
+			"task_id":"task_plates",
+			"task_version":1,
+			"task_alias":"balance",
+			"task_name":"Demonstration task."
+		},
 	]
 }

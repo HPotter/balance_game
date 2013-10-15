@@ -1,8 +1,8 @@
 {
-	"book_id":"sample_book2",
+	"book_id":"sample_book3",
 	"book_version":1,
-	"book_name":"Sample Balance Book",
-	"book_description":"Book sample description",
+	"book_name":"Sample Balance Book 2",
+	"book_description":"Book sample description 2",
 	"book_lessons":
 	[
 		"sample_lesson"

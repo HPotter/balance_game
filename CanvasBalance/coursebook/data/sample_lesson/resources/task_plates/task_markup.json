@@ -1,0 +1,44 @@
+{
+	"task_type":"CHECKOUT_BALANCE",
+	"task_text":"Establish balance plz",
+	"balance_data":
+	[
+		{
+			"state":0,
+			"fixed":false,
+			"interactive":true,
+			"left_objects":[],
+			"right_objects":[],
+			"available_objects":
+			[
+				{
+					"image":"melon.png",
+					"weight":2
+				},
+				{
+					"image":"melon.png",
+					"weight":2
+				}
+			]
+		},
+		{
+			"state":0,
+			"fixed":false,
+			"interactive":true,
+			"left_objects":[],
+			"right_objects":[],
+			"available_objects":
+			[
+				{
+					"image":"watermelon.png",
+					"weight":2
+				},
+				{
+					"image":"watermelon.png",
+					"weight":2
+				}
+			]
+		}
+	],
+	"available_objects":[]
+}
