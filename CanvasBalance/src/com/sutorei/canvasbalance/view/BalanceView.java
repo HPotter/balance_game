@@ -8,6 +8,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -130,6 +131,7 @@ public class BalanceView extends View {
 			BalanceData balanceData) {
 		super(context);
 		taskLoaded = false;
+		Bitmap b = Bitmap.createBitmap(33600, 200, Config.ARGB_8888);
 		BalanceBitmapContainer mBalanceBitmaps = new BalanceBitmapContainer(
 				balanceResourceFolder);
 		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
@@ -151,7 +153,9 @@ public class BalanceView extends View {
 
 		mAlphaPaint = new Paint();
 		mAlphaPaint.setAlpha(100);
-
+		
+		Log.e("#REKT", Boolean.toString(balanceData.isInteractive()));
+		
 		this.setOnTouchListener(new BalanceOnTouchListener());
 
 		loadAndStartTask(balanceData);
@@ -162,6 +166,8 @@ public class BalanceView extends View {
 		this.mObjectsOnRight = balanceData.getObjectsOnRight();
 		this.mAvaliableObjects = balanceData.getAvaliableObjects();
 		this.fixed = balanceData.isFixed();
+		Log.e("#REKT", Boolean.toString(balanceData.isInteractive()));
+		Log.e("#REKT", Boolean.toString(balanceData.isFixed()));
 		this.interactive = balanceData.isInteractive();
 		this.setCurrentState(balanceData.getBalanceState());
 
@@ -609,6 +615,7 @@ public class BalanceView extends View {
 		public boolean onTouch(View view, MotionEvent event) {
 			int eventX = (int) (event.getX() / totalScaleRatio);
 			int eventY = (int) (event.getY() / totalScaleRatio);
+			Log.d("#REKT", "Entered onTouch");
 			if (mAnimationOngoing)
 				return false;
 			if (!interactive)

@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 
 public class BalanceViewObject{
 	protected volatile int x, y;
-	protected volatile Bitmap sprite;
+	protected Bitmap sprite;
 	
 	public BalanceViewObject(){
 		x = 0; y = 0; sprite = null;
