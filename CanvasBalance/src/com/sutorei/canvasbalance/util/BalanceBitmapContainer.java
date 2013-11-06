@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.sutorei.canvasbalance.R;
-
 public class BalanceBitmapContainer {
 	private Bitmap leftCupBitmap, rightCupBitmap, beamBitmap, supportBitmap;
 	

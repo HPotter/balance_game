@@ -7,16 +7,16 @@ import android.view.ViewGroup;
 
 import com.sutorei.canvasbalance.domain.TaskData;
 
-public class CheckoutBalanceMode extends GameMode {
+public class FindMassInteractiveMode extends GameMode {
 
-	public CheckoutBalanceMode(Context context, ViewGroup parentView,
+	public FindMassInteractiveMode(Context context, ViewGroup parentView,
 			TaskData taskData, File extensionStyleFolder) {
 		super(context, parentView, taskData, extensionStyleFolder);
 	}
 
 	@Override
 	public boolean check() {
-		return super.checkBalances();
+		return super.checkBalances() && super.checkAnswers();
 	}
 
 	@Override
@@ -26,12 +26,12 @@ public class CheckoutBalanceMode extends GameMode {
 
 	@Override
 	public boolean isModeWithNumericAnswers() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isBalanceViewFixed() {
-		return true;
+		return false;
 	}
 
 	@Override

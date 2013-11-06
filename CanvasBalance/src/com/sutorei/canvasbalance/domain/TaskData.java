@@ -17,6 +17,8 @@ public class TaskData {
 	private int taskNumber, lessonNumber;
 	private TaskType taskType;
 	private String taskText;
+	private List<String> balanceText;
+	private List<Integer> correctAnswers;
 	private List<BalanceData> balanceData;
 	private List<WeightedObject> questions;
 
@@ -24,8 +26,11 @@ public class TaskData {
 	private static String KEY_TASK_TEXT = "task_text";
 	private static String KEY_BALANCE_DATA = "balance_data";
 	private static String KEY_AVAILABLE_OBJECTS = "available_objects";
+	private static String KEY_CORRECT_ANSWER = "correct_answer";
+	private static String KEY_BALANCE_TEXT = "balance_text";
 
-	public static TaskData fromJsonFile(File jsonFile, File taskFolder) throws ParseException {
+	public static TaskData fromJsonFile(File jsonFile, File taskFolder)
+			throws ParseException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = null;
 		try {
@@ -35,48 +40,73 @@ public class TaskData {
 					+ jsonFile.getAbsolutePath());
 			e.printStackTrace();
 		} catch (IOException e) {
-			Log.e("Parser(File file)",
-					"IOException while parsing file " + jsonFile.getAbsolutePath());
+			Log.e("Parser(File file)", "IOException while parsing file "
+					+ jsonFile.getAbsolutePath());
 			e.printStackTrace();
 		}
 
 		return fromJsonNode(rootNode, taskFolder);
 	}
 
-	protected static TaskData fromJsonNode(JsonNode rootNode, File taskFolder) throws ParseException {
+	protected static TaskData fromJsonNode(JsonNode rootNode, File taskFolder)
+			throws ParseException {
 		if (!rootNode.has(KEY_TASK_TYPE)) {
 			throw new ParseException(KEY_TASK_TYPE + " not found in json", 0);
 		}
 		if (!rootNode.has(KEY_TASK_TEXT)) {
 			throw new ParseException(KEY_TASK_TEXT + " not found in json", 0);
 		}
-		
+
 		TaskData result = new TaskData();
-		
+
 		result.setTaskType(TaskType.valueOf(rootNode.path(KEY_TASK_TYPE)
 				.asText()));
 		result.setTaskText(rootNode.path(KEY_TASK_TEXT).asText());
-		if(rootNode.has(KEY_BALANCE_DATA)) {
+		if (rootNode.has(KEY_BALANCE_DATA)) {
 			JsonNode balanceDataListNode = rootNode.path(KEY_BALANCE_DATA);
-			ArrayList<BalanceData> balanceDatas = new ArrayList<BalanceData>(balanceDataListNode.size());
-			
+			ArrayList<BalanceData> balanceDatas = new ArrayList<BalanceData>(
+					balanceDataListNode.size());
+			ArrayList<String> balanceText = new ArrayList<String>(
+					balanceDataListNode.size());
+			ArrayList<Integer> correctAnswers = new ArrayList<Integer>(
+					balanceDataListNode.size());
+
 			for (JsonNode balanceDataNode : balanceDataListNode) {
-				balanceDatas.add(BalanceData.fromJsonNode(balanceDataNode, taskFolder + File.separator));
+				if (balanceDataNode.has(KEY_CORRECT_ANSWER)) {
+					correctAnswers.add(balanceDataNode.path(KEY_CORRECT_ANSWER)
+							.asInt(0));
+				} else {
+					correctAnswers.add(null);
+				}
+				if (balanceDataNode.has(KEY_BALANCE_TEXT)) {
+					balanceText.add(balanceDataNode.path(KEY_BALANCE_TEXT)
+							.asText());
+				} else {
+					balanceText.add("");
+				}
+				balanceDatas.add(BalanceData.fromJsonNode(balanceDataNode,
+						taskFolder + File.separator));
 			}
-			
+
 			result.setBalanceData(balanceDatas);
+			result.setBalanceText(balanceText);
+			result.setCorrectAnswers(correctAnswers);
 		}
-		if(rootNode.has(KEY_AVAILABLE_OBJECTS)) {
-			JsonNode balanceAvailableObjectListNode = rootNode.path(KEY_AVAILABLE_OBJECTS);
-			ArrayList<WeightedObject> balanceAvailableObjects = new ArrayList<WeightedObject>(balanceAvailableObjectListNode.size());
-			
+		if (rootNode.has(KEY_AVAILABLE_OBJECTS)) {
+			JsonNode balanceAvailableObjectListNode = rootNode
+					.path(KEY_AVAILABLE_OBJECTS);
+			ArrayList<WeightedObject> balanceAvailableObjects = new ArrayList<WeightedObject>(
+					balanceAvailableObjectListNode.size());
+
 			for (JsonNode balanceAvailableObjectNode : balanceAvailableObjectListNode) {
-				balanceAvailableObjects.add(WeightedObject.fromJsonNode(balanceAvailableObjectNode, taskFolder + File.separator));
+				balanceAvailableObjects.add(WeightedObject
+						.fromJsonNode(balanceAvailableObjectNode, taskFolder
+								+ File.separator));
 			}
-			
+
 			result.setQuestions(balanceAvailableObjects);
 		}
-		
+
 		return result;
 	}
 
@@ -84,8 +114,9 @@ public class TaskData {
 	public String toString() {
 		return "TaskData [taskNumber=" + taskNumber + ", lessonNumber="
 				+ lessonNumber + ", taskType=" + taskType + ", taskText="
-				+ taskText + ", balanceData=" + balanceData + ", questions="
-				+ questions + "]";
+				+ taskText + ", balanceText=" + balanceText
+				+ ", correctAnswers=" + correctAnswers + ", balanceData="
+				+ balanceData + ", questions=" + questions + "]";
 	}
 
 	/**
@@ -141,6 +172,22 @@ public class TaskData {
 
 	public void setTaskText(String taskText) {
 		this.taskText = taskText;
+	}
+
+	public List<String> getBalanceText() {
+		return balanceText;
+	}
+
+	public void setBalanceText(List<String> balanceText) {
+		this.balanceText = balanceText;
+	}
+
+	public List<Integer> getCorrectAnswers() {
+		return correctAnswers;
+	}
+
+	public void setCorrectAnswers(List<Integer> correctAnswers) {
+		this.correctAnswers = correctAnswers;
 	}
 
 }

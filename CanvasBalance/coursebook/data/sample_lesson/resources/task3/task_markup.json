@@ -1,0 +1,27 @@
+{
+	"task_type":"FIND_MASS_INTERACTIVE",
+	"task_text":"Уравняйте весы и напишите ответы.",
+	"balance_data":
+	[
+		{
+			"balance_text":"Арбуз весит 2кг. Сколько весит дыня, если одна дыня уравнивает один арбуз?",
+			"correct_answer":2,
+			"left_objects":[],
+			"right_objects":
+			[
+				{
+					"image":"melon.png",
+					"weight":2
+				}
+			],
+			"available_objects":
+			[
+				{
+					"image":"watermelon.png",
+					"weight":2
+				}
+			]
+		}
+	],
+	"available_objects":[]
+}

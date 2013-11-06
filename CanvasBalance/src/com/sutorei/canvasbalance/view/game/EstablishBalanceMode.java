@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 
 import com.sutorei.canvasbalance.domain.TaskData;
 
-public class CheckoutBalanceMode extends GameMode {
+public class EstablishBalanceMode extends GameMode {
 
-	public CheckoutBalanceMode(Context context, ViewGroup parentView,
+	public EstablishBalanceMode(Context context, ViewGroup parentView,
 			TaskData taskData, File extensionStyleFolder) {
 		super(context, parentView, taskData, extensionStyleFolder);
 	}
@@ -31,7 +31,7 @@ public class CheckoutBalanceMode extends GameMode {
 
 	@Override
 	public boolean isBalanceViewFixed() {
-		return true;
+		return false;
 	}
 
 	@Override

@@ -9,13 +9,25 @@
 			"task_id":"task1",
 			"task_version":1,
 			"task_alias":"balance",
-			"task_name":"A task."
+			"task_name":"checkout"
 		},
 		{
 			"task_id":"task2",
 			"task_version":1,
 			"task_alias":"balance",
-			"task_name":"Task with two balances."
+			"task_name":"establish"
+		},
+		{
+			"task_id":"task3",
+			"task_version":1,
+			"task_alias":"balance",
+			"task_name":"find_mass_interactive"
+		},
+		{
+			"task_id":"task4",
+			"task_version":1,
+			"task_alias":"balance",
+			"task_name":"find_mass"
 		}
 	]
 }

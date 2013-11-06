@@ -6,7 +6,7 @@ book.zip: data/book_markup.json data/cover.png
 push: book.zip
 	adb push book.zip /sdcard/
 
-install: push
+install: clean push
 	adb shell am start com.hexonxons.core/.MainActivity
 
 clean:

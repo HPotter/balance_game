@@ -1,42 +1,223 @@
 package com.sutorei.canvasbalance.view.game;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
+import android.widget.TextView;
 
+import com.sutorei.canvasbalance.adapter.CustomViewPagerAdapter;
+import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.TaskData;
+import com.sutorei.canvasbalance.view.BalanceView;
 
 public abstract class GameMode {
+	private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
 	private TaskData mTaskData = null;
 	private Context mContext = null;
 	private ViewGroup mParentView = null;
 	private File mExtensionStyleFolder = null;
 
-	public GameMode(Context context, ViewGroup parentView, TaskData taskData, File extensionStyleFolder) {
+	private TextView mTaskText;
+	private List<BalanceView> mBalanceViews;
+	private List<EditText> mAnswerFields;
+	private ViewPager mBalancePager;
+	
+	ArrayList<RelativeLayout> relativeLayouts;
+
+	public GameMode(Context context, ViewGroup parentView, TaskData taskData,
+			File extensionStyleFolder) {
 		mTaskData = taskData;
 		mContext = context;
 		mParentView = parentView;
 		mExtensionStyleFolder = extensionStyleFolder;
+
+		init();
+		inflate();
 	}
 
-	public TaskData getTaskData() {
+	public final TaskData getTaskData() {
 		return mTaskData;
 	}
 
-	public Context getContext() {
+	public final Context getContext() {
 		return mContext;
 	}
-	
-	public ViewGroup getParentView() {
+
+	public final ViewGroup getParentView() {
 		return mParentView;
 	}
-	
-	public File getExtensionStyleFolder() {
+
+	public final File getExtensionStyleFolder() {
 		return mExtensionStyleFolder;
+	}
+
+	public void init() {
+		// create
+		mTaskText = new TextView(getContext());
+		mBalancePager = new ViewPager(getContext());
+		mBalanceViews = new ArrayList<BalanceView>();
+		mAnswerFields = new ArrayList<EditText>();
+
+		// init
+		mTaskText.setText(getTaskData().getTaskText());
+
+		RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		containerLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+		relativeLayouts = new ArrayList<RelativeLayout>();
+		Iterator<BalanceData> balanceDataIterator = getTaskData()
+				.getBalanceData().iterator();
+		Iterator<String> balanceTextIterator = getTaskData().getBalanceText()
+				.iterator();
+		while (balanceDataIterator.hasNext() && balanceTextIterator.hasNext()) {
+			BalanceData balanceData = balanceDataIterator.next();
+
+			// init type-dependent params
+			balanceData.setFixed(isBalanceViewFixed());
+			balanceData.setInteractive(isBalanceViewInteractive());
+
+			RelativeLayout relativeLayoutContainer = new RelativeLayout(
+					mContext);
+			relativeLayoutContainer.setLayoutParams(containerLayoutParams);
+
+			// init views
+			TextView textView = null;
+			BalanceView balanceView = null;
+			EditText editText = null;
+			textView = new TextView(mContext);
+			textView.setId(generateViewId());
+			textView.setText(balanceTextIterator.next());
+			balanceView = new BalanceView(getContext(),
+					getExtensionStyleFolder(), balanceData);
+			balanceView.setId(generateViewId()); // FIXME: useless?
+			mBalanceViews.add(balanceView);
+			if(isModeWithNumericAnswers()) {
+				editText = new EditText(mContext);
+				editText.setId(generateViewId());
+				editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+			}
+			
+			// init layoutParams
+			LayoutParams textViewLayoutParams = null;
+			LayoutParams balanceViewLayoutParams = null;
+			LayoutParams editTextLayoutParams = null;
+			textViewLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			textViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			textViewLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+			balanceViewLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+//			balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//			balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			balanceViewLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			balanceViewLayoutParams.addRule(RelativeLayout.BELOW, textView.getId());
+			if(isModeWithNumericAnswers()) {
+				balanceViewLayoutParams.addRule(RelativeLayout.ABOVE, editText.getId());
+				editTextLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				editTextLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				editTextLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+			} else {
+				balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			}
+			
+			// inflate relativeLayoutContainer
+			relativeLayoutContainer.addView(textView, textViewLayoutParams);
+			relativeLayoutContainer.addView(balanceView, balanceViewLayoutParams);
+			if(isModeWithNumericAnswers()) {
+				relativeLayoutContainer.addView(editText, editTextLayoutParams);
+			}
+
+			relativeLayouts.add(relativeLayoutContainer);
+		}
+		mBalancePager.setAdapter(new CustomViewPagerAdapter(relativeLayouts));
+	}
+
+	public void inflate() {
+		LayoutParams layoutParams;
+
+		layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT);
+		layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		mTaskText.setId(generateViewId());
+		getParentView().addView(mTaskText, layoutParams);
+
+		layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT);
+		layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		layoutParams.addRule(RelativeLayout.BELOW, mTaskText.getId());
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		mBalancePager.setId(generateViewId());
+		getParentView().addView(mBalancePager, layoutParams);
+	}
+
+	public final boolean checkBalances() {
+		boolean result = true;
+
+		for (int i = 0; result && i < mBalanceViews.size(); ++i) {
+			if (mBalanceViews.get(i).getCurrentState() != getTaskData()
+					.getBalanceData().get(i).getBalanceState()
+					|| !mBalanceViews.get(i).getAvaliableObjects().isEmpty()) {
+				result = false;
+			}
+		}
+
+		return result;
+	}
+
+	public final boolean checkAnswers() {
+		boolean result = true;
+
+		Iterator<Integer> correctAnswerIterator = mTaskData.getCorrectAnswers()
+				.iterator();
+		Iterator<EditText> answerFieldIterator = mAnswerFields.iterator();
+		while (result && correctAnswerIterator.hasNext()
+				&& answerFieldIterator.hasNext()) {
+			result = (Integer.decode(answerFieldIterator.next().getText()
+					.toString()).equals(correctAnswerIterator.next()));
+		}
+
+		return result;
 	}
 
 	public abstract boolean check();
 
 	public abstract void restart();
+
+	public abstract boolean isModeWithNumericAnswers();
+
+	public abstract boolean isBalanceViewFixed();
+
+	public abstract boolean isBalanceViewInteractive();
+
+	/**
+	 * Generate a value suitable for use in {@link #setId(int)}. This value will
+	 * not collide with ID values generated at build time by aapt for R.id.
+	 * 
+	 * @return a generated ID value
+	 */
+	public static final int generateViewId() {
+		for (;;) {
+			final int result = sNextGeneratedId.get();
+			// aapt-generated IDs have the high byte nonzero; clamp to the range
+			// under that.
+			int newValue = result + 1;
+			if (newValue > 0x00FFFFFF)
+				newValue = 1; // Roll over to 1, not 0.
+			if (sNextGeneratedId.compareAndSet(result, newValue)) {
+				return result;
+			}
+		}
+	}
 }

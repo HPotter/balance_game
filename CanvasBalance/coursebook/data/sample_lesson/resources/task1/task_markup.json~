@@ -4,8 +4,8 @@
 	"balance_data":
 	[
 		{
-			"state":0,
 			"balance_text":"",
+			"correct_answer":"",
 			"left_objects":[],
 			"right_objects":[],
 			"available_objects":

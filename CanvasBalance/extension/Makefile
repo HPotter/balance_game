@@ -9,7 +9,7 @@ extension.dex: ../bin/*.jar
 push: extension.zip
 	adb push extension.zip /sdcard/
 
-install: push
+install: clean push
 	adb shell am start com.hexonxons.core/.MainActivity
 
 clean:
