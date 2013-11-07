@@ -111,6 +111,7 @@ public class BalanceView extends View {
 
 	private final int BASE_WIDTH, BASE_HEIGHT; // XXX XXX XXX
 
+	private final float HORIZONTAL_CUP_ADJUSTMENT = 61, VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66; //XXX
 	private int mViewWidth, mViewHeight;
 
 	private BalanceState checkBalance() {
@@ -204,61 +205,10 @@ public class BalanceView extends View {
 		mInitPlacementFinished = false;
 		mAnimationOngoing = false;
 		mDraggedObject = null;
+		initCoordinates();
 		invalidate();
 	}
 
-//	public void loadAndStartTask(Context context,
-//			List<WeightedObject> _objectsOnLeft,
-//			List<WeightedObject> _objectsOnRight,
-//			List<WeightedObject> _avaliableObjects, boolean _isTouchable,
-//			boolean _isFixed, BalanceState bs) {
-//		int maxHeight = BASE_HEIGHT / 5;
-//		mObjectsOnLeft = _objectsOnLeft;
-//		for (WeightedObject wo : mObjectsOnLeft) {
-//			mWeightOnLeft += wo.getWeight();
-//			if (wo.getBitmap().getHeight() > maxHeight) {
-//				maxHeight = wo.getBitmap().getHeight();
-//			}
-//		}
-//		mObjectsOnRight = _objectsOnRight;
-//		for (WeightedObject wo : mObjectsOnRight) {
-//			mWeightOnRight += wo.getWeight();
-//			if (wo.getBitmap().getHeight() > maxHeight) {
-//				maxHeight = wo.getBitmap().getHeight();
-//			}
-//		}
-//
-//		mAvaliableObjects = _avaliableObjects;
-//
-//		for (WeightedObject wo : mAvaliableObjects) {
-//			if (wo.getBitmap().getHeight() > maxHeight) {
-//				maxHeight = wo.getBitmap().getHeight();
-//			}
-//		}
-//
-//		objectScaleRatio = ((float) BASE_HEIGHT / 5) / maxHeight;
-//
-//		for (WeightedObject wo : mObjectsOnLeft) {
-//			wo.setScalingRatio(objectScaleRatio);
-//		}
-//		for (WeightedObject wo : mObjectsOnRight) {
-//			wo.setScalingRatio(objectScaleRatio);
-//		}
-//		for (WeightedObject wo : mAvaliableObjects) {
-//			wo.setScalingRatio(objectScaleRatio);
-//		}
-//
-//		interactive = _isTouchable;
-//		fixed = _isFixed;
-//		taskLoaded = true;
-//
-//		mCurrentState = bs;
-//		mPreviousState = bs;
-//		mInitPlacementFinished = false;
-//		mAnimationOngoing = false;
-//		mDraggedObject = null;
-//		invalidate();
-//	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
@@ -273,12 +223,6 @@ public class BalanceView extends View {
 		Log.e("", "" + widthSize + " " + heightSize);
 		int mandatoryHeight = desiredHeight;
 		int mandatoryWidth = desiredWidth;
-
-		// Measure Height
-//		Log.d("Desired measures", "" + mandatoryHeight + " " + mandatoryWidth
-//				+ " " + (float) mandatoryHeight / mandatoryWidth);
-//		int screenWidth = getContext().getResources().getDisplayMetrics().widthPixels;
-//		int screenHeight = getContext().getResources().getDisplayMetrics().heightPixels;
 		int screenWidth = widthSize;
 		int screenHeight = heightSize;
 		if (heightMode == MeasureSpec.EXACTLY
@@ -295,8 +239,6 @@ public class BalanceView extends View {
 		if (mandatoryWidth >= screenWidth) {
 			mandatoryWidth = screenWidth;
 		}
-//		Log.d("Required measures", "" + mandatoryHeight + " " + mandatoryWidth
-//				+ " " + (float) mandatoryHeight / mandatoryWidth);
 		float derivedProportion = (float) mandatoryWidth / mandatoryHeight;
 		if (derivedProportion >= proportion) {
 			setMeasuredDimension(Math.round(proportion * mandatoryHeight),
@@ -309,8 +251,6 @@ public class BalanceView extends View {
 			this.mViewWidth = mandatoryWidth;
 			this.mViewHeight = Math.round(mandatoryWidth / proportion);
 		}
-//		Log.d("Resulting measures", "" + mViewHeight + " " + mViewWidth + " "
-//				+ (float) mViewHeight / mViewWidth);
 	}
 
 	protected void onLayout(boolean changed, int left, int top, int right,
@@ -322,6 +262,90 @@ public class BalanceView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
+	
+	protected void initCoordinates(){
+		leftCupObjectOffset = 0;
+		rightCupObjectOffset = 0;
+		mLeftCupXAtBalance = BASE_WIDTH / 2 - mBeam.getBitmap().getWidth()
+				/ 2 - mRightCup.getBitmap().getWidth() / 4;
+		mLeftCupYAtBalance = BASE_HEIGHT / 5;
+
+		mRotationAnimation.reset();
+
+		mSupport.setX(BASE_WIDTH / 2 - mSupport.getBitmap().getWidth() / 2);
+		mSupport.setY(BASE_HEIGHT / 2);
+		mBeam.setX(mSupport.getX() + mSupport.getBitmap().getWidth() / 2
+				- mBeam.getBitmap().getWidth() / 2);
+		mBeam.setY(mSupport.getY());
+		Collections.sort(mObjectsOnLeft,
+				new WeightedObject.HeightComparator());
+		Collections.sort(mObjectsOnRight,
+				new WeightedObject.HeightComparator());
+		Collections.sort(mAvaliableObjects,
+				new WeightedObject.HeightComparator());
+		switch (mCurrentState) {
+		case EQUAL:
+			mBeamBent = mBeam.copy();
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
+					/ 2 + HORIZONTAL_CUP_ADJUSTMENT);
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
+					/ 2 - mLeftCup.getBitmap().getHeight() + 5);
+			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth()
+					/ 2 + mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT);
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
+					/ 2 - mRightCup.getBitmap().getHeight() + 5);
+			mDegree = 0;
+			mRotationAnimation.postTranslate(mBeamBent.getX(),
+					mBeamBent.getY());
+			break;
+		case LEFT_IS_HEAVIER:
+			mRotationAnimation.postRotate(-14,
+					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
+							.getHeight() / 2);
+			mBeamBent = mBeam.copy();
+			mBeamBent.setX(mSupport.getX()
+					+ mSupport.getBitmap().getWidth() / 2
+					- mBeamBent.getBitmap().getWidth() / 2);
+			mBeamBent.setY(mSupport.getY()
+					- mBeamBent.getBitmap().getHeight() / 2
+					+ mBeam.getBitmap().getHeight() / 2);
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
+					/ 2 + HORIZONTAL_CUP_ADJUSTMENT);
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
+					/ 2 - mLeftCup.getBitmap().getHeight() + 5 + VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
+					- mRightCup.getBitmap().getWidth() / 2 - HORIZONTAL_CUP_ADJUSTMENT);
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
+					/ 2 - mRightCup.getBitmap().getHeight() + 5 -  VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mRotationAnimation.postTranslate(mBeamBent.getX(),
+					mBeamBent.getY());
+			mDegree = -14;
+			break;
+		case RIGHT_IS_HEAVIER:
+			mRotationAnimation.postRotate(+14,
+					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
+							.getHeight() / 2);
+			mBeamBent = mBeam.copy();
+			mBeamBent.setX(mSupport.getX()
+					+ mSupport.getBitmap().getWidth() / 2
+					- mBeamBent.getBitmap().getWidth() / 2);
+			mBeamBent.setY(mSupport.getY()
+					- mBeamBent.getBitmap().getHeight() / 2
+					+ mBeam.getBitmap().getHeight() / 2);
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
+					/ 2 + HORIZONTAL_CUP_ADJUSTMENT);
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
+					/ 2 - mLeftCup.getBitmap().getHeight() + 5 -  VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
+					- mRightCup.getBitmap().getWidth() / 2 - HORIZONTAL_CUP_ADJUSTMENT);
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
+					/ 2 - mRightCup.getBitmap().getHeight() + 5 +  VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mRotationAnimation.postTranslate(mBeamBent.getX(),
+					mBeamBent.getY());
+			mDegree = 14;
+			break;
+		}
+	}
 	@Override
 	public void onDraw(Canvas canvas) {
 		// super.onDraw(canvas);
@@ -375,97 +399,10 @@ public class BalanceView extends View {
 				t.start();
 			}
 		}
-		if (!mInitPlacementFinished) {
-			leftCupObjectOffset = 0;
-			rightCupObjectOffset = 0;
-			mLeftCupXAtBalance = BASE_WIDTH / 2 - mBeam.getBitmap().getWidth()
-					/ 2 - mRightCup.getBitmap().getWidth() / 4;
-			mLeftCupYAtBalance = BASE_HEIGHT / 5;
-
-			mRotationAnimation.reset();
-
-			mSupport.setX(BASE_WIDTH / 2 - mSupport.getBitmap().getWidth() / 2);
-			mSupport.setY(BASE_HEIGHT / 2);
-			mBeam.setX(mSupport.getX() + mSupport.getBitmap().getWidth() / 2
-					- mBeam.getBitmap().getWidth() / 2);
-			mBeam.setY(mSupport.getY());
-			Collections.sort(mObjectsOnLeft,
-					new WeightedObject.HeightComparator());
-			Collections.sort(mObjectsOnRight,
-					new WeightedObject.HeightComparator());
-			Collections.sort(mAvaliableObjects,
-					new WeightedObject.HeightComparator());
-			switch (mCurrentState) {
-			case EQUAL:
-				mBeamBent = mBeam.copy();
-				mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
-						/ 2 + 40);
-				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-						/ 2 - mLeftCup.getBitmap().getHeight() + 5);
-				mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth()
-						/ 2 + mBeam.getBitmap().getWidth() - 41);
-				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-						/ 2 - mRightCup.getBitmap().getHeight() + 5);
-				mDegree = 0;
-				mRotationAnimation.postTranslate(mBeamBent.getX(),
-						mBeamBent.getY());
-				break;
-			case LEFT_IS_HEAVIER:
-				mRotationAnimation.postRotate(-14,
-						mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
-								.getHeight() / 2);
-				mBeamBent = mBeam.copy();
-				mBeamBent.setX(mSupport.getX()
-						+ mSupport.getBitmap().getWidth() / 2
-						- mBeamBent.getBitmap().getWidth() / 2);
-				mBeamBent.setY(mSupport.getY()
-						- mBeamBent.getBitmap().getHeight() / 2
-						+ mBeam.getBitmap().getHeight() / 2);
-				mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
-						/ 2 + 41);
-				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-						/ 2 - mLeftCup.getBitmap().getHeight() + 49);
-				mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
-						- mRightCup.getBitmap().getWidth() / 2 - 41);
-				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-						/ 2 - mRightCup.getBitmap().getHeight() - 39);
-				mRotationAnimation.postTranslate(mBeamBent.getX(),
-						mBeamBent.getY());
-				mDegree = -14;
-				break;
-			case RIGHT_IS_HEAVIER:
-				mRotationAnimation.postRotate(+14,
-						mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
-								.getHeight() / 2);
-				mBeamBent = mBeam.copy();
-				mBeamBent.setX(mSupport.getX()
-						+ mSupport.getBitmap().getWidth() / 2
-						- mBeamBent.getBitmap().getWidth() / 2);
-				mBeamBent.setY(mSupport.getY()
-						- mBeamBent.getBitmap().getHeight() / 2
-						+ mBeam.getBitmap().getHeight() / 2);
-				mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
-						/ 2 + 41);
-				mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-						/ 2 - mLeftCup.getBitmap().getHeight() - 39);
-				mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
-						- mRightCup.getBitmap().getWidth() / 2 - 41);
-				mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-						/ 2 - mRightCup.getBitmap().getHeight() + 49);
-				mRotationAnimation.postTranslate(mBeamBent.getX(),
-						mBeamBent.getY());
-				mDegree = 14;
-				break;
-			}
-			mInitPlacementFinished = true;
-		} else {
-			mPreviousState = mCurrentState;
-			mCurrentState = checkBalance();
-		}
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
-		int xOffset = 5;
-		int yOffset = Math.round(BASE_HEIGHT * 19 / 20);
+		float xOffset = 5;
+		float yOffset = Math.round(BASE_HEIGHT * 19 / 20);
 		for (WeightedObject wo : mAvaliableObjects) {
 			wo.setX(xOffset);
 			wo.setY(yOffset - Math.round(wo.getHeight()));
@@ -473,7 +410,7 @@ public class BalanceView extends View {
 					wo.getY() + wo.getHeight());
 			canvas.drawBitmap(wo.getBitmap(), null, destRect,
 					mAntiAliasingPaint);
-			xOffset += 5 + wo.getBitmap().getWidth();
+			xOffset = wo.getX() + Math.round(wo.getWidth()) + 5;
 		}
 		for (WeightedObject wo : mObjectsOnRight) {
 			wo.setX(mRightCup.getX() - rightCupObjectOffset
@@ -526,10 +463,12 @@ public class BalanceView extends View {
 		private int degreeClause;
 		// 1 is clockwise rotation, -1 is ccw rotation
 		private int direction;
-
+		
+		private int totalFrames;
 		public AnimationUpdateThread(int degreeClause, int direction) {
 			this.direction = direction;
 			this.degreeClause = degreeClause;
+			totalFrames = 0;
 		}
 
 		@Override
@@ -542,8 +481,8 @@ public class BalanceView extends View {
 				if ((mDegree - degreeClause) * startingSignum < 1e-3) {
 					mDegree = degreeClause;
 				}
-				mLeftCup.setY(mLeftCup.getY() - direction);
-				mRightCup.setY(mRightCup.getY() + direction);
+				mLeftCup.setY(mLeftCup.getY() - direction*VERTICAL_DISBALANCED_CUP_ADJUSTMENT/44);
+				mRightCup.setY(mRightCup.getY() + direction*VERTICAL_DISBALANCED_CUP_ADJUSTMENT/44);
 				mRotationAnimation.reset();
 				mBeamBent.setX(mSupport.getX()
 						+ mSupport.getBitmap().getWidth() / 2
@@ -571,64 +510,15 @@ public class BalanceView extends View {
 				} catch (InterruptedException e) {
 
 				}
+				totalFrames++;
 			}
 			mDegree = degreeClause;
 			BalanceView.this.postInvalidate();
 			mAnimationOngoing = false;
+			Log.d("Frames", ""+totalFrames);
 		}
 	}
 
-	@Override
-	public Parcelable onSaveInstanceState() {
-
-		Bundle bundle = new Bundle();
-		ObjectMapper mapper = new ObjectMapper();
-		bundle.putParcelable("instanceState", super.onSaveInstanceState());
-		BalanceData bd = new BalanceData();
-		bd.setAvaliableObjects(this.mAvaliableObjects);
-		bd.setBalanceState(this.getCurrentState());
-		bd.setFixed(this.fixed);
-		bd.setInteractive(this.interactive);
-		bd.setObjectsOnLeft(this.mObjectsOnLeft);
-		bd.setObjectsOnRight(this.mObjectsOnRight);
-		try {
-			bundle.putString("stateToSave", mapper.writeValueAsString(bd));
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			Log.e("EXCEPTION",
-					"Failed to save instance state " + e.getMessage());
-		}
-
-		return bundle;
-	}
-
-	@Override
-	public void onRestoreInstanceState(Parcelable state) {
-
-		if (state instanceof Bundle) {
-			Bundle bundle = (Bundle) state;
-			ObjectMapper mapper = new ObjectMapper();
-			super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
-			try {
-				BalanceData bd = mapper.readValue(
-						bundle.getString("stateToSave"), BalanceData.class);
-				taskLoaded = false;
-				loadAndStartTask(bd);
-			} catch (JsonParseException e) {
-				Log.d("EXCEPTION",
-						"Failed to load instance state " + e.getMessage());
-			} catch (JsonMappingException e) {
-				Log.d("EXCEPTION",
-						"Failed to load instance state " + e.getMessage());
-			} catch (IOException e) {
-				Log.d("EXCEPTION",
-						"Failed to load instance state " + e.getMessage());
-			}
-			return;
-		}
-
-		super.onRestoreInstanceState(state);
-	}
 
 	private class BalanceOnTouchListener implements View.OnTouchListener {
 

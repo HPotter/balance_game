@@ -64,6 +64,8 @@ public class BalanceData {
 			}
 
 			result.setObjectsOnLeft(weightedObjects);
+		} else {
+			result.setObjectsOnLeft(new ArrayList<WeightedObject>());
 		}
 		if (rootNode.has(KEY_BALANCE_AVAILABLE_OBJECTS)) {
 			JsonNode weightedObjectListNode = rootNode
@@ -77,6 +79,8 @@ public class BalanceData {
 			}
 
 			result.setAvaliableObjects(weightedObjects);
+		} else {
+			result.setAvaliableObjects(new ArrayList<WeightedObject>());
 		}
 		if (rootNode.has(KEY_BALANCE_RIGHT_OBJECTS)) {
 			JsonNode weightedObjectListNode = rootNode
@@ -90,6 +94,8 @@ public class BalanceData {
 			}
 
 			result.setObjectsOnRight(weightedObjects);
+		} else {
+			result.setObjectsOnRight(new ArrayList<WeightedObject>());
 		}
 
 		return result;
