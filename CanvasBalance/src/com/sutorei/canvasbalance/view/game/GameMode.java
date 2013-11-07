@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -32,8 +33,8 @@ public abstract class GameMode {
 	private List<BalanceView> mBalanceViews;
 	private List<EditText> mAnswerFields;
 	private ViewPager mBalancePager;
-	
-	ArrayList<RelativeLayout> relativeLayouts;
+
+	ArrayList<RelativeLayout> mRelativeLayouts;
 
 	public GameMode(Context context, ViewGroup parentView, TaskData taskData,
 			File extensionStyleFolder) {
@@ -76,7 +77,7 @@ public abstract class GameMode {
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		containerLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
 
-		relativeLayouts = new ArrayList<RelativeLayout>();
+		mRelativeLayouts = new ArrayList<RelativeLayout>();
 		Iterator<BalanceData> balanceDataIterator = getTaskData()
 				.getBalanceData().iterator();
 		Iterator<String> balanceTextIterator = getTaskData().getBalanceText()
@@ -103,43 +104,53 @@ public abstract class GameMode {
 					getExtensionStyleFolder(), balanceData);
 			balanceView.setId(generateViewId()); // FIXME: useless?
 			mBalanceViews.add(balanceView);
-			if(isModeWithNumericAnswers()) {
+			if (isModeWithNumericAnswers()) {
 				editText = new EditText(mContext);
 				editText.setId(generateViewId());
 				editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+				editText.setEms(3);
+				mAnswerFields.add(editText);
 			}
-			
+
 			// init layoutParams
 			LayoutParams textViewLayoutParams = null;
 			LayoutParams balanceViewLayoutParams = null;
 			LayoutParams editTextLayoutParams = null;
-			textViewLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			textViewLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+					LayoutParams.WRAP_CONTENT);
 			textViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			textViewLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-			balanceViewLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-//			balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//			balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			balanceViewLayoutParams = new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			// balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			// balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			balanceViewLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			balanceViewLayoutParams.addRule(RelativeLayout.BELOW, textView.getId());
-			if(isModeWithNumericAnswers()) {
-				balanceViewLayoutParams.addRule(RelativeLayout.ABOVE, editText.getId());
-				editTextLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				editTextLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			balanceViewLayoutParams.addRule(RelativeLayout.BELOW,
+					textView.getId());
+			if (isModeWithNumericAnswers()) {
+				balanceViewLayoutParams.addRule(RelativeLayout.ABOVE,
+						editText.getId());
+				editTextLayoutParams = new LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				editTextLayoutParams
+						.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				editTextLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
 			} else {
-				balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				balanceViewLayoutParams
+						.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			}
-			
+
 			// inflate relativeLayoutContainer
 			relativeLayoutContainer.addView(textView, textViewLayoutParams);
-			relativeLayoutContainer.addView(balanceView, balanceViewLayoutParams);
-			if(isModeWithNumericAnswers()) {
+			relativeLayoutContainer.addView(balanceView,
+					balanceViewLayoutParams);
+			if (isModeWithNumericAnswers()) {
 				relativeLayoutContainer.addView(editText, editTextLayoutParams);
 			}
 
-			relativeLayouts.add(relativeLayoutContainer);
+			mRelativeLayouts.add(relativeLayoutContainer);
 		}
-		mBalancePager.setAdapter(new CustomViewPagerAdapter(relativeLayouts));
+		mBalancePager.setAdapter(new CustomViewPagerAdapter(mRelativeLayouts));
 	}
 
 	public void inflate() {
@@ -159,7 +170,11 @@ public abstract class GameMode {
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		mBalancePager.setId(generateViewId());
-		getParentView().addView(mBalancePager, layoutParams);
+		if(mBalanceViews.size() == 1) { // XXX: HAAAAAAAAX
+			getParentView().addView(mRelativeLayouts.get(0), layoutParams);
+		}else {
+			getParentView().addView(mBalancePager, layoutParams);
+		}
 	}
 
 	public final boolean checkBalances() {
@@ -184,8 +199,10 @@ public abstract class GameMode {
 		Iterator<EditText> answerFieldIterator = mAnswerFields.iterator();
 		while (result && correctAnswerIterator.hasNext()
 				&& answerFieldIterator.hasNext()) {
-			result = (Integer.decode(answerFieldIterator.next().getText()
-					.toString()).equals(correctAnswerIterator.next()));
+			int answer = Integer.decode(answerFieldIterator.next().getText()
+					.toString());
+			int correctAnswer = correctAnswerIterator.next();
+			result = (answer == correctAnswer);
 		}
 
 		return result;

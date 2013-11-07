@@ -36,13 +36,12 @@ public class CustomViewPagerAdapter extends PagerAdapter {
 		return arg0.equals(arg1);
 	}
 
-//	@Override
-//	public CharSequence getPageTitle(int position) {
-//		return "Весы " + position;
-//	}
-
 	@Override
 	public float getPageWidth(int position) {
-		return 0.8f;
+		if(pages.size() > 1) {
+			return 0.8f;
+		} else {
+			return 1f;
+		}
 	}
 }
