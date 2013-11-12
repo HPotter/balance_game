@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
-import android.text.InputFilter;
 import android.text.InputType;
 import android.view.ViewGroup;
 import android.widget.EditText;
