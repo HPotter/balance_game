@@ -98,8 +98,8 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 	}
 
 	@Override
-	public void setKeyboard(AbstractKeyboard abstractKeyboard) {
-		// TODO IDK what to do here
+	public void setKeyboard(AbstractKeyboard keyboard) {
+		mGameMode.setKeyboard(keyboard);
 	}
 
 	@Override

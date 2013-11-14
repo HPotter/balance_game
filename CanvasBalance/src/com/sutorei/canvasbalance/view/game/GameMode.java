@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.hexonxons.extension.AbstractKeyboard;
 import com.sutorei.canvasbalance.adapter.CustomViewPagerAdapter;
 import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.TaskData;
@@ -193,6 +194,12 @@ public abstract class GameMode {
 		}
 
 		return result;
+	}
+	
+	public final void setKeyboard(AbstractKeyboard keyboard) {
+		for(EditText editText : mAnswerFields) {
+			keyboard.registerEditText(editText);
+		}
 	}
 
 	public abstract boolean check();
