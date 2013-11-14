@@ -11,6 +11,8 @@ public class BalanceBitmapContainer {
 	private static Bitmap rightCupBitmap = null;
 	private static Bitmap beamBitmap = null;
 	private static Bitmap supportBitmap = null;
+	private static Bitmap facePositive = null;
+	private static Bitmap faceNegative = null;
 
 	private BalanceBitmapContainer() {
 	}
@@ -32,6 +34,14 @@ public class BalanceBitmapContainer {
 			supportBitmap = BitmapFactory.decodeFile(imageFolder
 					+ File.separator + "support.png");
 		}
+		if (facePositive == null) {
+			facePositive = BitmapFactory.decodeFile(imageFolder
+					+ File.separator + "sticker_ok_big.png");
+		}
+		if (faceNegative == null) {
+			faceNegative = BitmapFactory.decodeFile(imageFolder
+					+ File.separator + "sticker_false_big.png");
+		}
 	}
 
 	public static Bitmap getLeftCupBitmap() {
@@ -50,4 +60,11 @@ public class BalanceBitmapContainer {
 		return supportBitmap;
 	}
 
+	public static Bitmap getFacePositiveBitmap(){
+		return facePositive;
+	}
+	
+	public static Bitmap getFaceNegativeBitmap(){
+		return faceNegative;
+	}
 }

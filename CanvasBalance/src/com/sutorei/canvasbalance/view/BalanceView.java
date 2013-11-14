@@ -87,9 +87,9 @@ public class BalanceView extends View {
 	private BalanceState mPreviousState, mCurrentState;
 
 	// inner logic
-	private BalanceViewObject mLeftCup, mRightCup, mBeam, mSupport;
+	private BalanceViewObject mLeftCup, mRightCup, mBeam, mSupport, mPositivePopup, mNegativePopup;
 	private volatile BalanceViewObject mBeamBent;
-	private boolean mDragOngoing, taskLoaded;
+	private boolean mDragOngoing, taskLoaded, positivePopupVisible, negativePopupVisible;
 	private volatile boolean mAnimationOngoing;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
 	private WeightedObject mDraggedObject = null;
@@ -129,6 +129,11 @@ public class BalanceView extends View {
 		mBeam = new BalanceViewObject(BalanceBitmapContainer.getBeamBitmap());
 		mSupport = new BalanceViewObject(
 				BalanceBitmapContainer.getSupportBitmap());
+		
+		positivePopupVisible = negativePopupVisible = false;
+		
+		mPositivePopup = new BalanceViewObject(BalanceBitmapContainer.getFacePositiveBitmap());
+		mNegativePopup = new BalanceViewObject(BalanceBitmapContainer.getFaceNegativeBitmap());
 
 		BASE_WIDTH = mLeftCup.getBitmap().getWidth() / 2
 				+ mBeam.getBitmap().getWidth()
@@ -257,6 +262,9 @@ public class BalanceView extends View {
 		rightCupObjectOffset = 0;
 
 		mRotationAnimation.reset();
+		
+		mPositivePopup.setX(10); mPositivePopup.setY(10);
+		mNegativePopup.setX(10); mNegativePopup.setY(10);
 
 		mSupport.setX(BASE_WIDTH / 2 - mSupport.getBitmap().getWidth() / 2);
 		mSupport.setY(BASE_HEIGHT / 2);
@@ -443,10 +451,36 @@ public class BalanceView extends View {
 				mAntiAliasingPaint);
 		canvas.drawBitmap(mSupport.getBitmap(), mSupport.getX(),
 				mSupport.getY(), mAntiAliasingPaint);
-
+		
+		if (positivePopupVisible){
+			canvas.drawBitmap(mPositivePopup.getBitmap(), 
+					mPositivePopup.getX(), 
+					mPositivePopup.getY(),
+					mAntiAliasingPaint);
+		}
+		if (negativePopupVisible){
+			canvas.drawBitmap(mNegativePopup.getBitmap(), 
+					mNegativePopup.getX(), 
+					mNegativePopup.getY(),
+					mAntiAliasingPaint);
+		}
 		canvas.restore();
 	}
 
+	public void setCorrectnessPopup(boolean isCorrect){
+		if (isCorrect){
+			positivePopupVisible = true;
+			negativePopupVisible = false;
+		} else {
+			positivePopupVisible = false;
+			negativePopupVisible = true;
+		}
+	}
+	
+	public void dismissPopup(){
+		positivePopupVisible = false;
+		negativePopupVisible = false;
+	}
 	private class AnimationUpdateThread implements Runnable {
 		private int degreeClause;
 		// 1 is clockwise rotation, -1 is ccw rotation
