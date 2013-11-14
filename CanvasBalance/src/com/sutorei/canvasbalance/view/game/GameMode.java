@@ -1,6 +1,5 @@
 package com.sutorei.canvasbalance.view.game;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +26,6 @@ public abstract class GameMode {
 	private TaskData mTaskData = null;
 	private Context mContext = null;
 	private ViewGroup mParentView = null;
-	private File mExtensionStyleFolder = null;
 
 	private List<BalanceView> mBalanceViews;
 	private List<EditText> mAnswerFields;
@@ -35,12 +33,10 @@ public abstract class GameMode {
 
 	ArrayList<RelativeLayout> mRelativeLayouts;
 
-	public GameMode(Context context, ViewGroup parentView, TaskData taskData,
-			File extensionStyleFolder) {
+	public GameMode(Context context, ViewGroup parentView, TaskData taskData) {
 		mTaskData = taskData;
 		mContext = context;
 		mParentView = parentView;
-		mExtensionStyleFolder = extensionStyleFolder;
 
 		init();
 		inflate();
@@ -56,10 +52,6 @@ public abstract class GameMode {
 
 	public final ViewGroup getParentView() {
 		return mParentView;
-	}
-
-	public final File getExtensionStyleFolder() {
-		return mExtensionStyleFolder;
 	}
 
 	public void init() {
@@ -97,8 +89,7 @@ public abstract class GameMode {
 			textView = new TextView(mContext);
 			textView.setId(generateViewId());
 			textView.setText(balanceTextIterator.next());
-			balanceView = new BalanceView(getContext(),
-					getExtensionStyleFolder(), balanceData);
+			balanceView = new BalanceView(getContext(), balanceData);
 			balanceView.setId(generateViewId());
 			mBalanceViews.add(balanceView);
 			if (isModeWithNumericAnswers()) {

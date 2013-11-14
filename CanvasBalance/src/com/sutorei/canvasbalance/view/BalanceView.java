@@ -1,8 +1,8 @@
 package com.sutorei.canvasbalance.view;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,6 +13,7 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
 import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.BalanceState;
 import com.sutorei.canvasbalance.domain.BalanceViewObject;
@@ -104,7 +105,8 @@ public class BalanceView extends View {
 
 	private final int BASE_WIDTH, BASE_HEIGHT; // XXX XXX XXX
 
-	private final float HORIZONTAL_CUP_ADJUSTMENT = 61, VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66; //XXX
+	private final float HORIZONTAL_CUP_ADJUSTMENT = 61,
+			VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66; // XXX
 	private int mViewWidth, mViewHeight;
 
 	private BalanceState checkBalance() {
@@ -118,16 +120,16 @@ public class BalanceView extends View {
 		}
 	}
 
-	public BalanceView(Context context, File balanceResourceFolder,
-			BalanceData balanceData) {
+	public BalanceView(Context context, BalanceData balanceData) {
 		super(context);
 		taskLoaded = false;
-		BalanceBitmapContainer mBalanceBitmaps = new BalanceBitmapContainer(
-				balanceResourceFolder);
-		mLeftCup = new BalanceViewObject(mBalanceBitmaps.getLeftCupBitmap());
-		mRightCup = new BalanceViewObject(mBalanceBitmaps.getRightCupBitmap());
-		mBeam = new BalanceViewObject(mBalanceBitmaps.getBeamBitmap());
-		mSupport = new BalanceViewObject(mBalanceBitmaps.getSupportBitmap());
+		mLeftCup = new BalanceViewObject(
+				BalanceBitmapContainer.getLeftCupBitmap());
+		mRightCup = new BalanceViewObject(
+				BalanceBitmapContainer.getRightCupBitmap());
+		mBeam = new BalanceViewObject(BalanceBitmapContainer.getBeamBitmap());
+		mSupport = new BalanceViewObject(
+				BalanceBitmapContainer.getSupportBitmap());
 
 		BASE_WIDTH = mLeftCup.getBitmap().getWidth() / 2
 				+ mBeam.getBitmap().getWidth()
@@ -199,7 +201,6 @@ public class BalanceView extends View {
 		invalidate();
 	}
 
-
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -252,12 +253,11 @@ public class BalanceView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
-	
-	protected void initCoordinates(){
+	protected void initCoordinates() {
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
-		mLeftCupXAtBalance = BASE_WIDTH / 2 - mBeam.getBitmap().getWidth()
-				/ 2 - mRightCup.getBitmap().getWidth() / 4;
+		mLeftCupXAtBalance = BASE_WIDTH / 2 - mBeam.getBitmap().getWidth() / 2
+				- mRightCup.getBitmap().getWidth() / 4;
 		mLeftCupYAtBalance = BASE_HEIGHT / 5;
 
 		mRotationAnimation.reset();
@@ -267,48 +267,48 @@ public class BalanceView extends View {
 		mBeam.setX(mSupport.getX() + mSupport.getBitmap().getWidth() / 2
 				- mBeam.getBitmap().getWidth() / 2);
 		mBeam.setY(mSupport.getY());
-		Collections.sort(mObjectsOnLeft,
-				new WeightedObject.HeightComparator());
-		Collections.sort(mObjectsOnRight,
-				new WeightedObject.HeightComparator());
+		Collections.sort(mObjectsOnLeft, new WeightedObject.HeightComparator());
+		Collections
+				.sort(mObjectsOnRight, new WeightedObject.HeightComparator());
 		Collections.sort(mAvaliableObjects,
 				new WeightedObject.HeightComparator());
 		switch (mCurrentState) {
 		case EQUAL:
 			mBeamBent = mBeam.copy();
-			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
-					/ 2 + HORIZONTAL_CUP_ADJUSTMENT);
-			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-					/ 2 - mLeftCup.getBitmap().getHeight() + 5);
-			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth()
-					/ 2 + mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT);
-			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-					/ 2 - mRightCup.getBitmap().getHeight() + 5);
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
+					+ HORIZONTAL_CUP_ADJUSTMENT);
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mLeftCup.getBitmap().getHeight() + 5);
+			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
+					+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT);
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mRightCup.getBitmap().getHeight() + 5);
 			mDegree = 0;
-			mRotationAnimation.postTranslate(mBeamBent.getX(),
-					mBeamBent.getY());
+			mRotationAnimation
+					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
 			break;
 		case LEFT_IS_HEAVIER:
 			mRotationAnimation.postRotate(-14,
 					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
 							.getHeight() / 2);
 			mBeamBent = mBeam.copy();
-			mBeamBent.setX(mSupport.getX()
-					+ mSupport.getBitmap().getWidth() / 2
-					- mBeamBent.getBitmap().getWidth() / 2);
-			mBeamBent.setY(mSupport.getY()
-					- mBeamBent.getBitmap().getHeight() / 2
-					+ mBeam.getBitmap().getHeight() / 2);
-			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
-					/ 2 + HORIZONTAL_CUP_ADJUSTMENT);
-			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-					/ 2 - mLeftCup.getBitmap().getHeight() + 5 + VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
+					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
+			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
+					/ 2 + mBeam.getBitmap().getHeight() / 2);
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
+					+ HORIZONTAL_CUP_ADJUSTMENT);
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mLeftCup.getBitmap().getHeight() + 5
+					+ VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
 			mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
-					- mRightCup.getBitmap().getWidth() / 2 - HORIZONTAL_CUP_ADJUSTMENT);
-			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-					/ 2 - mRightCup.getBitmap().getHeight() + 5 -  VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
-			mRotationAnimation.postTranslate(mBeamBent.getX(),
-					mBeamBent.getY());
+					- mRightCup.getBitmap().getWidth() / 2
+					- HORIZONTAL_CUP_ADJUSTMENT);
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mRightCup.getBitmap().getHeight() + 5
+					- VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mRotationAnimation
+					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
 			mDegree = -14;
 			break;
 		case RIGHT_IS_HEAVIER:
@@ -316,26 +316,28 @@ public class BalanceView extends View {
 					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
 							.getHeight() / 2);
 			mBeamBent = mBeam.copy();
-			mBeamBent.setX(mSupport.getX()
-					+ mSupport.getBitmap().getWidth() / 2
-					- mBeamBent.getBitmap().getWidth() / 2);
-			mBeamBent.setY(mSupport.getY()
-					- mBeamBent.getBitmap().getHeight() / 2
-					+ mBeam.getBitmap().getHeight() / 2);
-			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth()
-					/ 2 + HORIZONTAL_CUP_ADJUSTMENT);
-			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-					/ 2 - mLeftCup.getBitmap().getHeight() + 5 -  VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
+					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
+			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
+					/ 2 + mBeam.getBitmap().getHeight() / 2);
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
+					+ HORIZONTAL_CUP_ADJUSTMENT);
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mLeftCup.getBitmap().getHeight() + 5
+					- VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
 			mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
-					- mRightCup.getBitmap().getWidth() / 2 - HORIZONTAL_CUP_ADJUSTMENT);
-			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight()
-					/ 2 - mRightCup.getBitmap().getHeight() + 5 +  VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
-			mRotationAnimation.postTranslate(mBeamBent.getX(),
-					mBeamBent.getY());
+					- mRightCup.getBitmap().getWidth() / 2
+					- HORIZONTAL_CUP_ADJUSTMENT);
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mRightCup.getBitmap().getHeight() + 5
+					+ VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
+			mRotationAnimation
+					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
 			mDegree = 14;
 			break;
 		}
 	}
+
 	@Override
 	public void onDraw(Canvas canvas) {
 		// super.onDraw(canvas);
@@ -453,8 +455,9 @@ public class BalanceView extends View {
 		private int degreeClause;
 		// 1 is clockwise rotation, -1 is ccw rotation
 		private int direction;
-		
+
 		private int totalFrames;
+
 		public AnimationUpdateThread(int degreeClause, int direction) {
 			this.direction = direction;
 			this.degreeClause = degreeClause;
@@ -471,8 +474,10 @@ public class BalanceView extends View {
 				if ((mDegree - degreeClause) * startingSignum < 1e-3) {
 					mDegree = degreeClause;
 				}
-				mLeftCup.setY(mLeftCup.getY() - direction*VERTICAL_DISBALANCED_CUP_ADJUSTMENT/44);
-				mRightCup.setY(mRightCup.getY() + direction*VERTICAL_DISBALANCED_CUP_ADJUSTMENT/44);
+				mLeftCup.setY(mLeftCup.getY() - direction
+						* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
+				mRightCup.setY(mRightCup.getY() + direction
+						* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
 				mRotationAnimation.reset();
 				mBeamBent.setX(mSupport.getX()
 						+ mSupport.getBitmap().getWidth() / 2
@@ -505,10 +510,9 @@ public class BalanceView extends View {
 			mDegree = degreeClause;
 			BalanceView.this.postInvalidate();
 			mAnimationOngoing = false;
-			Log.d("Frames", ""+totalFrames);
+			Log.d("Frames", "" + totalFrames);
 		}
 	}
-
 
 	private class BalanceOnTouchListener implements View.OnTouchListener {
 

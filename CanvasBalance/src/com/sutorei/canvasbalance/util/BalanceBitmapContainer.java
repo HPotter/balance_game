@@ -4,35 +4,50 @@ import java.io.File;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
-//TODO singleton
+//TODO(optional) ordinary singleton?
 public class BalanceBitmapContainer {
-	private Bitmap leftCupBitmap, rightCupBitmap, beamBitmap, supportBitmap;
-	
-	public BalanceBitmapContainer(File imageFolder){
-		leftCupBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "cup_left.png");
-		rightCupBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "cup_right.png");
-		beamBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "balance.png");
-		Log.e("", imageFolder + File.separator + "balance.png");
-		supportBitmap = BitmapFactory.decodeFile(imageFolder + File.separator + "support.png");
+	private static Bitmap leftCupBitmap = null;
+	private static Bitmap rightCupBitmap = null;
+	private static Bitmap beamBitmap = null;
+	private static Bitmap supportBitmap = null;
+
+	private BalanceBitmapContainer() {
 	}
 
-	public Bitmap getLeftCupBitmap() {
+	public static void loadBitmaps(File imageFolder) {
+		if (leftCupBitmap == null) {
+			leftCupBitmap = BitmapFactory.decodeFile(imageFolder
+					+ File.separator + "cup_left.png");
+		}
+		if (rightCupBitmap == null) {
+			rightCupBitmap = BitmapFactory.decodeFile(imageFolder
+					+ File.separator + "cup_right.png");
+		}
+		if (beamBitmap == null) {
+			beamBitmap = BitmapFactory.decodeFile(imageFolder + File.separator
+					+ "balance.png");
+		}
+		if (supportBitmap == null) {
+			supportBitmap = BitmapFactory.decodeFile(imageFolder
+					+ File.separator + "support.png");
+		}
+	}
+
+	public static Bitmap getLeftCupBitmap() {
 		return leftCupBitmap;
 	}
 
-	public Bitmap getRightCupBitmap() {
+	public static Bitmap getRightCupBitmap() {
 		return rightCupBitmap;
 	}
 
-	public Bitmap getBeamBitmap() {
+	public static Bitmap getBeamBitmap() {
 		return beamBitmap;
 	}
 
-	public Bitmap getSupportBitmap() {
+	public static Bitmap getSupportBitmap() {
 		return supportBitmap;
 	}
-	
-	
+
 }

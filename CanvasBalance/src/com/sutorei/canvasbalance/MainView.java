@@ -11,6 +11,7 @@ import com.hexonxons.extension.AbstractKeyboard;
 import com.hexonxons.extension.ExtensionListener;
 import com.hexonxons.extension.ExtensionViewImpl;
 import com.sutorei.canvasbalance.domain.TaskData;
+import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
 import com.sutorei.canvasbalance.view.game.CheckoutBalanceMode;
 import com.sutorei.canvasbalance.view.game.EstablishBalanceMode;
 import com.sutorei.canvasbalance.view.game.FindMassInteractiveMode;
@@ -28,27 +29,25 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 		super(context);
 
 		setWillNotDraw(false);
+		
+		BalanceBitmapContainer.loadBitmaps(extensionStyleFolder);
 
 		// TODO: fabric
 		mTaskData = TaskData.fromJsonFile(taskMarkup, taskFolder);
 		switch (mTaskData.getTaskType()) {
 		case ESTABLISH_BALANCE:
-			mGameMode = new EstablishBalanceMode(context, this, mTaskData,
-					extensionStyleFolder);
+			mGameMode = new EstablishBalanceMode(context, this, mTaskData);
 			break;
 		case CHECKOUT_BALANCE:
-			mGameMode = new CheckoutBalanceMode(context, this, mTaskData,
-					extensionStyleFolder);
+			mGameMode = new CheckoutBalanceMode(context, this, mTaskData);
 			break;
 		case FIND_MASS:
-			mGameMode = new FindMassMode(context, this, mTaskData,
-					extensionStyleFolder);
+			mGameMode = new FindMassMode(context, this, mTaskData);
 			break;
 		case FIND_MASS_USING_EQUATION:
 			break;
 		case FIND_MASS_INTERACTIVE:
-			mGameMode = new FindMassInteractiveMode(context, this, mTaskData,
-					extensionStyleFolder);
+			mGameMode = new FindMassInteractiveMode(context, this, mTaskData);
 			break;
 		case FIND_MASS_USING_EQUATION_INTERACTIVE:
 			break;
