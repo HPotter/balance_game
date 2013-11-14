@@ -92,7 +92,6 @@ public class BalanceView extends View {
 	private boolean mDragOngoing, taskLoaded;
 	private volatile boolean mAnimationOngoing;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
-	int mLeftCupXAtBalance, mLeftCupYAtBalance;
 	private WeightedObject mDraggedObject = null;
 	private float totalScaleRatio, objectScaleRatio;
 	private int mDraggedObjectIndex, mDraggedObjectOrigin;
@@ -256,9 +255,6 @@ public class BalanceView extends View {
 	protected void initCoordinates() {
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
-		mLeftCupXAtBalance = BASE_WIDTH / 2 - mBeam.getBitmap().getWidth() / 2
-				- mRightCup.getBitmap().getWidth() / 4;
-		mLeftCupYAtBalance = BASE_HEIGHT / 5;
 
 		mRotationAnimation.reset();
 

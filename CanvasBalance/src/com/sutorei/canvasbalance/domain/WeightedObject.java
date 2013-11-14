@@ -3,10 +3,9 @@ package com.sutorei.canvasbalance.domain;
 import java.text.ParseException;
 import java.util.Comparator;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import android.content.Context;
 import android.graphics.BitmapFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class WeightedObject extends BalanceViewObject {
 	@Override
@@ -43,23 +42,6 @@ public class WeightedObject extends BalanceViewObject {
 		scalingRatio = 1;
 	}
 
-	public WeightedObject(int resourceId, Context context, float _weight) {
-		super(resourceId, context);
-		weight = _weight;
-		x = 0;
-		y = 0;
-		scalingRatio = 1;
-	}
-
-	public WeightedObject(int resourceId, Context context, float _weight,
-			float _scalingRatio) {
-		super(resourceId, context);
-		weight = _weight;
-		x = 0;
-		y = 0;
-		scalingRatio = _scalingRatio;
-	}
-
 	public WeightedObject(String imageLink, float _weight) {
 		filePath = imageLink;
 		x = 0;
@@ -69,6 +51,7 @@ public class WeightedObject extends BalanceViewObject {
 		scalingRatio = 1;
 	}
 
+	// TODO Object.clone()
 	public WeightedObject copy() {
 		WeightedObject copy = new WeightedObject();
 		copy.x = this.x;
