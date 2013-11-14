@@ -28,7 +28,6 @@ public abstract class GameMode {
 	private ViewGroup mParentView = null;
 	private File mExtensionStyleFolder = null;
 
-	private TextView mTaskText;
 	private List<BalanceView> mBalanceViews;
 	private List<EditText> mAnswerFields;
 	private ViewPager mBalancePager;
@@ -64,13 +63,11 @@ public abstract class GameMode {
 
 	public void init() {
 		// create
-		mTaskText = new TextView(getContext());
 		mBalancePager = new ViewPager(getContext());
 		mBalanceViews = new ArrayList<BalanceView>();
 		mAnswerFields = new ArrayList<EditText>();
 
 		// init
-		mTaskText.setText(getTaskData().getTaskText());
 
 		RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -101,7 +98,7 @@ public abstract class GameMode {
 			textView.setText(balanceTextIterator.next());
 			balanceView = new BalanceView(getContext(),
 					getExtensionStyleFolder(), balanceData);
-			balanceView.setId(generateViewId()); // FIXME: useless?
+			balanceView.setId(generateViewId());
 			mBalanceViews.add(balanceView);
 			if (isModeWithNumericAnswers()) {
 				editText = new EditText(mContext);
@@ -121,8 +118,6 @@ public abstract class GameMode {
 			textViewLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
 			balanceViewLayoutParams = new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-			// balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			// balanceViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			balanceViewLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			balanceViewLayoutParams.addRule(RelativeLayout.BELOW,
 					textView.getId());
@@ -155,23 +150,16 @@ public abstract class GameMode {
 	public void inflate() {
 		LayoutParams layoutParams;
 
-		layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT);
-		layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		mTaskText.setId(generateViewId());
-		getParentView().addView(mTaskText, layoutParams);
-
 		layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
 		layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		layoutParams.addRule(RelativeLayout.BELOW, mTaskText.getId());
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		mBalancePager.setId(generateViewId());
-		if(mBalanceViews.size() == 1) { // XXX: HAAAAAAAAX
+		if (mBalanceViews.size() == 1) {
 			getParentView().addView(mRelativeLayouts.get(0), layoutParams);
-		}else {
+		} else {
 			getParentView().addView(mBalancePager, layoutParams);
 		}
 	}

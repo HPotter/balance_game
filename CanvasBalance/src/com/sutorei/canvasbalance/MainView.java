@@ -7,7 +7,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.RelativeLayout;
 
+import com.hexonxons.extension.AbstractKeyboard;
 import com.hexonxons.extension.ExtensionListener;
+import com.hexonxons.extension.ExtensionViewImpl;
 import com.sutorei.canvasbalance.domain.TaskData;
 import com.sutorei.canvasbalance.view.game.CheckoutBalanceMode;
 import com.sutorei.canvasbalance.view.game.EstablishBalanceMode;
@@ -16,9 +18,10 @@ import com.sutorei.canvasbalance.view.game.FindMassMode;
 import com.sutorei.canvasbalance.view.game.GameMode;
 
 @SuppressLint("ViewConstructor")
-public class MainView extends RelativeLayout {
+public class MainView extends RelativeLayout implements ExtensionViewImpl {
 	private ExtensionListener mExtensionListener = null;
 	private GameMode mGameMode = null;
+	private TaskData mTaskData = null;
 
 	public MainView(Context context, File taskMarkup, File taskFolder,
 			File extensionStyleFolder) throws ParseException {
@@ -27,24 +30,24 @@ public class MainView extends RelativeLayout {
 		setWillNotDraw(false);
 
 		// TODO: fabric
-		TaskData taskData = TaskData.fromJsonFile(taskMarkup, taskFolder);
-		switch (taskData.getTaskType()) {
+		mTaskData = TaskData.fromJsonFile(taskMarkup, taskFolder);
+		switch (mTaskData.getTaskType()) {
 		case ESTABLISH_BALANCE:
-			mGameMode = new EstablishBalanceMode(context, this, taskData,
+			mGameMode = new EstablishBalanceMode(context, this, mTaskData,
 					extensionStyleFolder);
 			break;
 		case CHECKOUT_BALANCE:
-			mGameMode = new CheckoutBalanceMode(context, this, taskData,
+			mGameMode = new CheckoutBalanceMode(context, this, mTaskData,
 					extensionStyleFolder);
 			break;
 		case FIND_MASS:
-			mGameMode = new FindMassMode(context, this, taskData,
+			mGameMode = new FindMassMode(context, this, mTaskData,
 					extensionStyleFolder);
 			break;
 		case FIND_MASS_USING_EQUATION:
 			break;
 		case FIND_MASS_INTERACTIVE:
-			mGameMode = new FindMassInteractiveMode(context, this, taskData,
+			mGameMode = new FindMassInteractiveMode(context, this, mTaskData,
 					extensionStyleFolder);
 			break;
 		case FIND_MASS_USING_EQUATION_INTERACTIVE:
@@ -67,5 +70,45 @@ public class MainView extends RelativeLayout {
 	public void restart() {
 		mGameMode.restart();
 		mExtensionListener.onRestart();
+	}
+
+	@Override
+	public boolean doLoad(boolean orientationChange) {
+		return false;
+	}
+
+	@Override
+	public void onPreLoad() {
+		// do nothing
+	}
+
+	@Override
+	public void load(int width, int height) {
+		// do nothing
+	}
+
+	@Override
+	public void onPostLoad() {
+		// do nothing
+	}
+
+	@Override
+	public void release() {
+		// do nothing
+	}
+
+	@Override
+	public void setKeyboard(AbstractKeyboard abstractKeyboard) {
+		// TODO IDK what to do here
+	}
+
+	@Override
+	public int fixOrientation() {
+		return ORIENTATION_FIX_LANDSCAPE;
+	}
+
+	@Override
+	public String getTaskDescription() {
+		return mTaskData.getTaskText();
 	}
 }
