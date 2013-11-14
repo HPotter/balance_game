@@ -1,32 +1,25 @@
 package com.sutorei.canvasbalance.view;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sutorei.canvasbalance.domain.BalanceData;
+import com.sutorei.canvasbalance.domain.BalanceState;
 import com.sutorei.canvasbalance.domain.BalanceViewObject;
 import com.sutorei.canvasbalance.domain.WeightedObject;
 import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
-import com.sutorei.canvasbalance.util.BalanceState;
 
+@SuppressLint("ViewConstructor")
 public class BalanceView extends View {
 
 	// important to outside checkout
@@ -95,7 +88,7 @@ public class BalanceView extends View {
 	// inner logic
 	private BalanceViewObject mLeftCup, mRightCup, mBeam, mSupport;
 	private volatile BalanceViewObject mBeamBent;
-	private boolean mInitPlacementFinished, mDragOngoing, taskLoaded;
+	private boolean mDragOngoing, taskLoaded;
 	private volatile boolean mAnimationOngoing;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
 	int mLeftCupXAtBalance, mLeftCupYAtBalance;
@@ -103,11 +96,11 @@ public class BalanceView extends View {
 	private float totalScaleRatio, objectScaleRatio;
 	private int mDraggedObjectIndex, mDraggedObjectOrigin;
 	// object origin -1 means left cup, 1 - right cup, 0 - avaliable objects
-	Matrix mRotationAnimation, mRotationPredisposition;
+	private Matrix mRotationAnimation;
 	private volatile float mDegree;
 	private boolean interactive, fixed;
-	int leftCupObjectOffset;
-	int rightCupObjectOffset;
+	private int leftCupObjectOffset;
+	private int rightCupObjectOffset;
 
 	private final int BASE_WIDTH, BASE_HEIGHT; // XXX XXX XXX
 
@@ -141,7 +134,6 @@ public class BalanceView extends View {
 				+ mRightCup.getBitmap().getWidth() / 2;
 		BASE_HEIGHT = mSupport.getBitmap().getHeight() * 4;
 		mRotationAnimation = new Matrix();
-		mRotationPredisposition = new Matrix();
 
 		mWeightOnLeft = 0;
 		mWeightOnRight = 0;
@@ -150,7 +142,6 @@ public class BalanceView extends View {
 		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mAntiAliasingPaint.setFilterBitmap(true);
 		mAntiAliasingPaint.setDither(true);
-		mInitPlacementFinished = false;
 
 		mAlphaPaint = new Paint();
 		mAlphaPaint.setAlpha(100);
@@ -202,7 +193,6 @@ public class BalanceView extends View {
 		taskLoaded = true;
 
 		mPreviousState = balanceData.getBalanceState();
-		mInitPlacementFinished = false;
 		mAnimationOngoing = false;
 		mDraggedObject = null;
 		initCoordinates();

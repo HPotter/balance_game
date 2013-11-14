@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.sutorei.canvasbalance.util.BalanceState;
 
 public class BalanceData {
 	@Override
@@ -24,33 +23,16 @@ public class BalanceData {
 	private boolean fixed;
 
 	private static String KEY_BALANCE_STATE = "state";
-	// private static String KEY_BALANCE_FIXED = "fixed";
-	// private static String KEY_BALANCE_INTERACTIVE = "interactive";
 	private static String KEY_BALANCE_LEFT_OBJECTS = "left_objects";
 	private static String KEY_BALANCE_RIGHT_OBJECTS = "right_objects";
 	private static String KEY_BALANCE_AVAILABLE_OBJECTS = "available_objects";
 
 	protected static BalanceData fromJsonNode(JsonNode rootNode,
 			String taskFolder) throws ParseException {
-		// if (!rootNode.has(KEY_BALANCE_STATE)) {
-		// throw new ParseException(KEY_BALANCE_STATE + " not found in json",
-		// 0);
-		// }
-		// if (!rootNode.has(KEY_BALANCE_FIXED)) {
-		// throw new ParseException(KEY_BALANCE_FIXED + " not found in json",
-		// 0);
-		// }
-		// if (!rootNode.has(KEY_BALANCE_INTERACTIVE)) {
-		// throw new ParseException(KEY_BALANCE_INTERACTIVE
-		// + " not found in json", 0);
-		// }
 
 		BalanceData result = new BalanceData();
 		result.setBalanceState(BalanceState.fromInt(rootNode.path(
 				KEY_BALANCE_STATE).asInt(0)));
-		// result.setFixed(rootNode.path(KEY_BALANCE_FIXED).asBoolean());
-		// result.setInteractive(rootNode.path(KEY_BALANCE_INTERACTIVE)
-		// .asBoolean());
 
 		if (rootNode.has(KEY_BALANCE_LEFT_OBJECTS)) {
 			JsonNode weightedObjectListNode = rootNode

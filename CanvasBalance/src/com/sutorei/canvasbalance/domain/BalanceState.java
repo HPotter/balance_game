@@ -1,4 +1,4 @@
-package com.sutorei.canvasbalance.util;
+package com.sutorei.canvasbalance.domain;
 
 public enum BalanceState {
 	LEFT_IS_HEAVIER, EQUAL, RIGHT_IS_HEAVIER;
