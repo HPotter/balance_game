@@ -81,6 +81,26 @@ public class WeightedObject extends BalanceViewObject {
 	public float getWidth() {
 		return sprite.getWidth() * scalingRatio;
 	}
+	
+	@Override
+	public boolean isTouchedWithoutOpacity(float touchX, float touchY){
+		if (touchX - x >= 0 && touchX - x <= sprite.getWidth()*scalingRatio
+				&& touchY - y>= 0 && touchY - y <= sprite.getHeight()*scalingRatio){
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isTouched(float touchX, float touchY){
+		if (touchX - x >= 0 && touchX - x <= sprite.getWidth()*scalingRatio
+				&& touchY - y>= 0 && touchY - y <= sprite.getHeight()*scalingRatio){
+			int color = sprite.getPixel((int)Math.ceil(touchX - x), 
+										(int)Math.ceil(touchY - y));
+			return !((color & 0xff000000) == 0x0);
+		}
+		return false;
+	}
 
 	public static class WeightComparator implements Comparator<WeightedObject> {
 

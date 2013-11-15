@@ -92,8 +92,9 @@ public class BalanceView extends View {
 	private boolean mDragOngoing, taskLoaded, positivePopupVisible, negativePopupVisible;
 	private volatile boolean mAnimationOngoing;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
+	private int mLeftCupXAtBalance, mLeftCupYAtBalance;
 	private WeightedObject mDraggedObject = null;
-	private float totalScaleRatio, objectScaleRatio;
+	private float totalScaleRatio;
 	private int mDraggedObjectIndex, mDraggedObjectOrigin;
 	// object origin -1 means left cup, 1 - right cup, 0 - avaliable objects
 	private Matrix mRotationAnimation;
@@ -169,31 +170,20 @@ public class BalanceView extends View {
 		for (WeightedObject wo : mObjectsOnLeft) {
 			mWeightOnLeft += wo.getWeight();
 			if (wo.getBitmap().getHeight() > maxHeight) {
-				maxHeight = wo.getBitmap().getHeight();
+				wo.setScalingRatio(maxHeight/wo.getBitmap().getHeight());
 			}
 		}
 		for (WeightedObject wo : mObjectsOnRight) {
 			mWeightOnRight += wo.getWeight();
 			if (wo.getBitmap().getHeight() > maxHeight) {
-				maxHeight = wo.getBitmap().getHeight();
+				wo.setScalingRatio(maxHeight/wo.getBitmap().getHeight());
 			}
 		}
 
 		for (WeightedObject wo : mAvaliableObjects) {
 			if (wo.getBitmap().getHeight() > maxHeight) {
-				maxHeight = wo.getBitmap().getHeight();
+				wo.setScalingRatio(maxHeight/wo.getBitmap().getHeight());
 			}
-		}
-		objectScaleRatio = ((float) BASE_HEIGHT / 5) / maxHeight;
-
-		for (WeightedObject wo : mObjectsOnLeft) {
-			wo.setScalingRatio(objectScaleRatio);
-		}
-		for (WeightedObject wo : mObjectsOnRight) {
-			wo.setScalingRatio(objectScaleRatio);
-		}
-		for (WeightedObject wo : mAvaliableObjects) {
-			wo.setScalingRatio(objectScaleRatio);
 		}
 
 		taskLoaded = true;
@@ -342,15 +332,10 @@ public class BalanceView extends View {
 		}
 	}
 
-	@Override
-	public void onDraw(Canvas canvas) {
-		// super.onDraw(canvas);
-		drawOnCanvas(canvas);
-	}
-
 	RectF destRect = new RectF();
 
-	public void drawOnCanvas(Canvas canvas) {
+	@Override
+	public void onDraw(Canvas canvas) {
 		if (!taskLoaded) {
 			return;
 		}
@@ -410,7 +395,7 @@ public class BalanceView extends View {
 		}
 		for (WeightedObject wo : mObjectsOnRight) {
 			wo.setX(mRightCup.getX() - rightCupObjectOffset
-					+ mRightCup.getBitmap().getWidth() * 8 / 9
+					+ mRightCup.getBitmap().getWidth() * 86/100
 					- Math.round(wo.getWidth()));
 			wo.setY(mRightCup.getY() + mRightCup.getBitmap().getHeight() * 1
 					/ 4 - Math.round(wo.getHeight()));
@@ -419,8 +404,8 @@ public class BalanceView extends View {
 			canvas.drawBitmap(wo.getBitmap(), null, destRect,
 					mAntiAliasingPaint);
 			rightCupObjectOffset = (rightCupObjectOffset + mRightCup
-					.getBitmap().getWidth() / 4)
-					% (mRightCup.getBitmap().getWidth() * 7 / 11);
+                    .getBitmap().getWidth() / 4)
+                    % (mRightCup.getBitmap().getWidth() * 7 / 11);
 		}
 		for (WeightedObject wo : mObjectsOnLeft) {
 			wo.setX(mLeftCup.getX() + leftCupObjectOffset
@@ -437,10 +422,10 @@ public class BalanceView extends View {
 
 		}
 		if (mDraggedObject != null) {
-			canvas.drawBitmap(mDraggedObject.getBitmap(), null, new RectF(
-					mDraggedObject.getX(), mDraggedObject.getY(),
+			destRect.set(mDraggedObject.getX(), mDraggedObject.getY(),
 					mDraggedObject.getX() + mDraggedObject.getWidth(),
-					mDraggedObject.getY() + mDraggedObject.getHeight()),
+					mDraggedObject.getY() + mDraggedObject.getHeight());
+			canvas.drawBitmap(mDraggedObject.getBitmap(), null, destRect,
 					mAlphaPaint);
 		}
 		canvas.drawBitmap(mLeftCup.getBitmap(), mLeftCup.getX(),
