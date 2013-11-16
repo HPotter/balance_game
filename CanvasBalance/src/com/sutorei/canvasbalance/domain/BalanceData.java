@@ -8,14 +8,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class BalanceData {
-	@Override
-	public String toString() {
-		return "BalanceData [objectsOnLeft=" + objectsOnLeft
-				+ ", objectsOnRight=" + objectsOnRight + ", avaliableObjects="
-				+ avaliableObjects + ", interactive=" + interactive
-				+ ", balanceState=" + balanceState + ", fixed=" + fixed + "]";
-	}
-
 	private List<WeightedObject> objectsOnLeft, objectsOnRight,
 			avaliableObjects;
 	private boolean interactive;
@@ -83,25 +75,14 @@ public class BalanceData {
 		return result;
 	}
 
-	/**
-	 * @return the fixed
-	 */
 	public boolean isFixed() {
 		return fixed;
 	}
 
-	/**
-	 * @param fixed
-	 *            the fixed to set
-	 */
 	public void setFixed(boolean fixed) {
 		this.fixed = fixed;
 	}
 
-	/**
-	 * @param interactive
-	 *            the interactive to set
-	 */
 	public void setInteractive(boolean interactive) {
 		this.interactive = interactive;
 	}

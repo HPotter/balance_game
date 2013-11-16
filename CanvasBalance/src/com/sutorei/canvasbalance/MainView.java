@@ -63,8 +63,8 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 		}
 	}
 
-	public void setExtensionListener(ExtensionListener l) {
-		mExtensionListener = l;
+	public void setExtensionListener(ExtensionListener extensionListener) {
+		mExtensionListener = extensionListener;
 	}
 
 	public void check() {

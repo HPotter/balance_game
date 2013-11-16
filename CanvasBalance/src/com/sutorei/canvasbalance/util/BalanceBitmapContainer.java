@@ -5,7 +5,6 @@ import java.io.File;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-//TODO(optional) ordinary singleton?
 public class BalanceBitmapContainer {
 	private static Bitmap leftCupBitmap = null;
 	private static Bitmap rightCupBitmap = null;

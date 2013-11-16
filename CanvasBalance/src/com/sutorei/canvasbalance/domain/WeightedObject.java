@@ -7,20 +7,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.sutorei.canvasbalance.util.BalanceObjectBitmapCache;
 
 public class WeightedObject extends BalanceViewObject {
-	@Override
-	public String toString() {
-		return "WeightedObject [weight=" + weight + ", filePath="
-				+ filePath + "]";
-	}
-
 	protected float weight;
-	private String filePath;
 	protected float scalingRatio;
 
 	private static String KEY_BALANCE_OBJECT_IMAGE = "image";
 	private static String KEY_BALANCE_OBJECT_WEIGHT = "weight";
 
-	protected static WeightedObject fromJsonNode(JsonNode rootNode, String imageFolder) throws ParseException {
+	protected static WeightedObject fromJsonNode(JsonNode rootNode,
+			String imageFolder) throws ParseException {
 		if (!rootNode.has(KEY_BALANCE_OBJECT_IMAGE)) {
 			throw new ParseException(KEY_BALANCE_OBJECT_IMAGE
 					+ " not found in json", 0);
@@ -29,8 +23,10 @@ public class WeightedObject extends BalanceViewObject {
 			throw new ParseException(KEY_BALANCE_OBJECT_WEIGHT
 					+ " not found in json", 0);
 		}
-		
-		return new WeightedObject(imageFolder + rootNode.path(KEY_BALANCE_OBJECT_IMAGE).asText(), rootNode.path(KEY_BALANCE_OBJECT_WEIGHT).asInt());
+
+		return new WeightedObject(imageFolder
+				+ rootNode.path(KEY_BALANCE_OBJECT_IMAGE).asText(), rootNode
+				.path(KEY_BALANCE_OBJECT_WEIGHT).asInt());
 	}
 
 	public WeightedObject() {
@@ -41,16 +37,14 @@ public class WeightedObject extends BalanceViewObject {
 		scalingRatio = 1;
 	}
 
-	public WeightedObject(String imageLink, float _weight) {
-		filePath = imageLink;
-		x = 0;
-		y = 0;
-		weight = _weight;
+	public WeightedObject(String imageLink, float weight) {
+		this();
+		
+		this.weight = weight;
 		sprite = BalanceObjectBitmapCache.getBitmap(imageLink);
-		scalingRatio = 1;
 	}
 
-	// TODO Object.clone()
+	// TODO Object.clone() ?
 	public WeightedObject copy() {
 		WeightedObject copy = new WeightedObject();
 		copy.x = this.x;
@@ -80,22 +74,24 @@ public class WeightedObject extends BalanceViewObject {
 	public float getWidth() {
 		return sprite.getWidth() * scalingRatio;
 	}
-	
+
 	@Override
-	public boolean isTouchedWithoutOpacity(float touchX, float touchY){
-		if (touchX - x >= 0 && touchX - x <= sprite.getWidth()*scalingRatio
-				&& touchY - y>= 0 && touchY - y <= sprite.getHeight()*scalingRatio){
+	public boolean isTouchedWithoutOpacity(float touchX, float touchY) {
+		if (touchX - x >= 0 && touchX - x <= sprite.getWidth() * scalingRatio
+				&& touchY - y >= 0
+				&& touchY - y <= sprite.getHeight() * scalingRatio) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
-	public boolean isTouched(float touchX, float touchY){
-		if (touchX - x >= 0 && touchX - x <= sprite.getWidth()*scalingRatio
-				&& touchY - y>= 0 && touchY - y <= sprite.getHeight()*scalingRatio){
-			int color = sprite.getPixel((int)Math.ceil(touchX - x), 
-										(int)Math.ceil(touchY - y));
+	public boolean isTouched(float touchX, float touchY) {
+		if (touchX - x >= 0 && touchX - x <= sprite.getWidth() * scalingRatio
+				&& touchY - y >= 0
+				&& touchY - y <= sprite.getHeight() * scalingRatio) {
+			int color = sprite.getPixel((int) Math.ceil(touchX - x),
+					(int) Math.ceil(touchY - y));
 			return !((color & 0xff000000) == 0x0);
 		}
 		return false;

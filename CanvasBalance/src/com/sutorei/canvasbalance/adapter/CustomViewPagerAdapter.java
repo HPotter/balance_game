@@ -38,10 +38,6 @@ public class CustomViewPagerAdapter extends PagerAdapter {
 
 	@Override
 	public float getPageWidth(int position) {
-		if(pages.size() > 1) {
-			return 0.8f;
-		} else {
-			return 1f;
-		}
+		return 0.8f;
 	}
 }

@@ -92,7 +92,6 @@ public class BalanceView extends View {
 	private boolean mDragOngoing, taskLoaded, positivePopupVisible, negativePopupVisible;
 	private volatile boolean mAnimationOngoing;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
-	private int mLeftCupXAtBalance, mLeftCupYAtBalance;
 	private WeightedObject mDraggedObject = null;
 	private float totalScaleRatio;
 	private int mDraggedObjectIndex, mDraggedObjectOrigin;
@@ -103,10 +102,10 @@ public class BalanceView extends View {
 	private int leftCupObjectOffset;
 	private int rightCupObjectOffset;
 
-	private final int BASE_WIDTH, BASE_HEIGHT; // XXX XXX XXX
+	private final int BASE_WIDTH, BASE_HEIGHT;
 
 	private final float HORIZONTAL_CUP_ADJUSTMENT = 61,
-			VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66; // XXX
+			VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66;
 	private int mViewWidth, mViewHeight;
 
 	private BalanceState checkBalance() {
@@ -483,7 +482,6 @@ public class BalanceView extends View {
 		public void run() {
 			mAnimationOngoing = true;
 			float startingSignum = Math.signum(mDegree - degreeClause);
-			// while(startingSignum == smoothenedSignum(mDegree)){
 			while ((mDegree - degreeClause) * startingSignum >= 1e-3) {
 				mDegree += (float) direction * 32 / 100;
 				if ((mDegree - degreeClause) * startingSignum < 1e-3) {

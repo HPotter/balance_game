@@ -110,26 +110,10 @@ public class TaskData {
 		return result;
 	}
 
-	@Override
-	public String toString() {
-		return "TaskData [taskNumber=" + taskNumber + ", lessonNumber="
-				+ lessonNumber + ", taskType=" + taskType + ", taskText="
-				+ taskText + ", balanceText=" + balanceText
-				+ ", correctAnswers=" + correctAnswers + ", balanceData="
-				+ balanceData + ", questions=" + questions + "]";
-	}
-
-	/**
-	 * @return the questions
-	 */
 	public List<WeightedObject> getQuestions() {
 		return questions;
 	}
 
-	/**
-	 * @param questions
-	 *            the questions to set
-	 */
 	public void setQuestions(List<WeightedObject> questions) {
 		this.questions = questions;
 	}
