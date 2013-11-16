@@ -1,14 +1,26 @@
 {
 	"task_type":"ESTABLISH_BALANCE",
-	"task_text":"Establish balance plz",
+	"task_text":"Уравняй все весы, использовав все предметы",
 	"balance_data":
 	[
 		{
-			"balance_text":"",
+			"balance_text":"Все дыни весят по 2 килограмма, а арбуз - 3",
 			"left_objects":[],
 			"right_objects":[],
 			"available_objects":
 			[
+				{
+					"image":"watermelon.png",
+					"weight":3
+				},
+				{
+					"image":"watermelon.png",
+					"weight":3
+				},
+				{
+					"image":"melon.png",
+					"weight":2
+				},
 				{
 					"image":"melon.png",
 					"weight":2
@@ -20,17 +32,33 @@
 			]
 		},
 		{
-			"balance_text":"",
+			"balance_text":"Арбуз вдвое тяжелее гири, а дыня - вдвое легче",
 			"left_objects":[],
 			"right_objects":[],
 			"available_objects":
 			[
 				{
-					"image":"watermelon.png",
-					"weight":2
+					"image":"melon.png",
+					"weight":1
+				},
+				{
+					"image":"melon.png",
+					"weight":1
+				},
+				{
+					"image":"melon.png",
+					"weight":1
+				},
+				{
+					"image":"melon.png",
+					"weight":1
 				},
 				{
 					"image":"watermelon.png",
+					"weight":4
+				},
+				{
+					"image":"kilo2.png",
 					"weight":2
 				}
 			]
