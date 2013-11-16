@@ -25,17 +25,20 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 	private ExtensionListener mExtensionListener = null;
 	private GameMode mGameMode = null;
 	private TaskData mTaskData = null;
+	private File taskFolder = null;
+	private File extensionStyleFolder = null;
+	
 
 	public MainView(Context context, File taskMarkup, File taskFolder,
 			File extensionStyleFolder) throws ParseException {
 		super(context);
 
+		this.taskFolder = taskFolder;
+		this.extensionStyleFolder = extensionStyleFolder;
+		
 		setWillNotDraw(false);
 		
-		BalanceObjectBitmapCache.purge();
-		BalanceObjectBitmapCache.preloadAll(taskFolder);
-		
-		BalanceBitmapContainer.loadBitmaps(extensionStyleFolder);
+
 
 		// TODO: fabric
 		mTaskData = TaskData.fromJsonFile(taskMarkup, taskFolder);
@@ -78,12 +81,15 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 
 	@Override
 	public boolean doLoad(boolean orientationChange) {
-		return false;
+		return !orientationChange;
 	}
 
 	@Override
 	public void onPreLoad() {
-		// do nothing
+		BalanceBitmapContainer.loadBitmaps(extensionStyleFolder);
+		
+		BalanceObjectBitmapCache.purge();
+		BalanceObjectBitmapCache.preloadAll(taskFolder);
 	}
 
 	@Override
@@ -98,7 +104,7 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 
 	@Override
 	public void release() {
-		// do nothing
+		BalanceObjectBitmapCache.purge();
 	}
 
 	@Override
