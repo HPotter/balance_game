@@ -18,6 +18,7 @@ import com.hexonxons.extension.AbstractKeyboard;
 import com.sutorei.canvasbalance.adapter.CustomViewPagerAdapter;
 import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.TaskData;
+import com.sutorei.canvasbalance.util.FontContainer;
 import com.sutorei.canvasbalance.view.BalanceView;
 
 public abstract class GameMode {
@@ -89,6 +90,9 @@ public abstract class GameMode {
 			textView = new TextView(mContext);
 			textView.setId(generateViewId());
 			textView.setText(balanceTextIterator.next());
+			if(FontContainer.isTypefaceSet()) {
+				textView.setTypeface(FontContainer.getTypeface());
+			}
 			balanceView = new BalanceView(getContext(), balanceData);
 			balanceView.setId(generateViewId());
 			mBalanceViews.add(balanceView);

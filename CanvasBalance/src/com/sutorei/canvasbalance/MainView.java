@@ -13,13 +13,13 @@ import com.hexonxons.extension.ExtensionViewImpl;
 import com.sutorei.canvasbalance.domain.TaskData;
 import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
 import com.sutorei.canvasbalance.util.BalanceObjectBitmapCache;
+import com.sutorei.canvasbalance.util.FontContainer;
 import com.sutorei.canvasbalance.view.game.CheckoutBalanceMode;
 import com.sutorei.canvasbalance.view.game.EstablishBalanceMode;
 import com.sutorei.canvasbalance.view.game.FindMassInteractiveMode;
 import com.sutorei.canvasbalance.view.game.FindMassMode;
 import com.sutorei.canvasbalance.view.game.GameMode;
 
-//TODO fonts
 @SuppressLint("ViewConstructor")
 public class MainView extends RelativeLayout implements ExtensionViewImpl {
 	private ExtensionListener mExtensionListener = null;
@@ -36,6 +36,7 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 		BalanceObjectBitmapCache.preloadAll(taskFolder);
 		
 		BalanceBitmapContainer.loadBitmaps(extensionStyleFolder);
+		FontContainer.setTypeface(new File(extensionStyleFolder, "font.ttf"));
 
 		// TODO: fabric
 		mTaskData = TaskData.fromJsonFile(taskMarkup, taskFolder);
