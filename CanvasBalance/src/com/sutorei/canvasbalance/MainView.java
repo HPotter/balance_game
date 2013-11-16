@@ -12,12 +12,14 @@ import com.hexonxons.extension.ExtensionListener;
 import com.hexonxons.extension.ExtensionViewImpl;
 import com.sutorei.canvasbalance.domain.TaskData;
 import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
+import com.sutorei.canvasbalance.util.BalanceObjectBitmapCache;
 import com.sutorei.canvasbalance.view.game.CheckoutBalanceMode;
 import com.sutorei.canvasbalance.view.game.EstablishBalanceMode;
 import com.sutorei.canvasbalance.view.game.FindMassInteractiveMode;
 import com.sutorei.canvasbalance.view.game.FindMassMode;
 import com.sutorei.canvasbalance.view.game.GameMode;
 
+//TODO fonts
 @SuppressLint("ViewConstructor")
 public class MainView extends RelativeLayout implements ExtensionViewImpl {
 	private ExtensionListener mExtensionListener = null;
@@ -29,6 +31,9 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 		super(context);
 
 		setWillNotDraw(false);
+		
+		BalanceObjectBitmapCache.purge();
+		BalanceObjectBitmapCache.preloadAll(taskFolder);
 		
 		BalanceBitmapContainer.loadBitmaps(extensionStyleFolder);
 

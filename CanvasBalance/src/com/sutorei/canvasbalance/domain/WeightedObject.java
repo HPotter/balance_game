@@ -3,9 +3,8 @@ package com.sutorei.canvasbalance.domain;
 import java.text.ParseException;
 import java.util.Comparator;
 
-import android.graphics.BitmapFactory;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sutorei.canvasbalance.util.BalanceObjectBitmapCache;
 
 public class WeightedObject extends BalanceViewObject {
 	@Override
@@ -47,7 +46,7 @@ public class WeightedObject extends BalanceViewObject {
 		x = 0;
 		y = 0;
 		weight = _weight;
-		sprite = BitmapFactory.decodeFile(imageLink);
+		sprite = BalanceObjectBitmapCache.getBitmap(imageLink);
 		scalingRatio = 1;
 	}
 
