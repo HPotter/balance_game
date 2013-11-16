@@ -1,24 +1,71 @@
 {
 	"task_type":"FIND_MASS_INTERACTIVE",
-	"task_text":"Уравняйте весы и напишите ответы.",
+	"task_text":"Используя весы, найдите ответы на вопросы",
 	"balance_data":
 	[
 		{
-			"balance_text":"Арбуз весит 2кг. Сколько весит дыня, если одна дыня уравнивает один арбуз?",
-			"correct_answer":2,
+			"balance_text":"Два арбуза весят столько же, сколько три дыни. Сколько весит арбуз?",
+			"correct_answer":3,
 			"left_objects":[],
-			"right_objects":
-			[
-				{
-					"image":"melon.png",
-					"weight":2
-				}
-			],
+			"right_objects":[],
 			"available_objects":
 			[
 				{
-					"image":"watermelon.png",
+					"image":"kilo1.png",
+					"weight":1
+				},
+				{
+					"image":"melon.png",
 					"weight":2
+				},
+				{
+					"image":"melon.png",
+					"weight":2
+				},
+				{
+					"image":"melon.png",
+					"weight":2
+				},
+				{
+					"image":"watermelon.png",
+					"weight":3
+				},
+				{
+					"image":"watermelon.png",
+					"weight":3
+				}
+			]
+		},
+		{
+			"balance_text":"Сколько весит арбуз?",
+			"correct_answer":11,
+			"left_objects":[],
+			"right_objects":[],
+			"available_objects":
+			[
+				{
+					"image":"kilo1.png",
+					"weight":1
+				},
+				{
+					"image":"kilo2.png",
+					"weight":2
+				},
+				{
+					"image":"kilo3.png",
+					"weight":3
+				},
+				{
+					"image":"kilo5.png",
+					"weight":5
+				},
+				{
+					"image":"kilo10.png",
+					"weight":10
+				},
+				{
+					"image":"watermelon.png",
+					"weight":11
 				}
 			]
 		}

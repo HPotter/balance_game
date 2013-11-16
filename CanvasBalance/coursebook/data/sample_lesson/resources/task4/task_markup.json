@@ -21,6 +21,37 @@
 				}
 			],
 			"available_objects":[]
+		},
+		{
+			"balance_text":"Банан весит 2кг. Сколько весит ананас?",
+			"correct_answer":6,
+			"left_objects":
+			[
+				{
+					"image":"kilo10.png",
+					"weight":10
+				},
+				{
+					"image":"banana.png",
+					"weight":2
+				}
+			],
+			"right_objects":
+			[
+				{
+					"image":"kilo5.png",
+					"weight":5
+				},
+				{
+					"image":"kilo1.png",
+					"weight":1
+				},
+				{
+					"image":"ananas.png",
+					"weight":6
+				}
+			],
+			"available_objects":[]
 		}
 	],
 	"available_objects":[]
