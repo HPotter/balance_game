@@ -166,7 +166,7 @@ public class BalanceView extends View {
 		this.interactive = balanceData.isInteractive();
 		this.setCurrentState(balanceData.getBalanceState());
 
-		int maxHeight = BASE_HEIGHT / 5;
+		float maxHeight = BASE_HEIGHT / 5;
 		for (WeightedObject wo : mObjectsOnLeft) {
 			mWeightOnLeft += wo.getWeight();
 			if (wo.getBitmap().getHeight() > maxHeight) {
