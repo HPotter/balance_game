@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
@@ -24,7 +25,7 @@ public class LineupView extends View{
 	private List<WeightedObject> objectsToSort;
 	private boolean initialized = false, mDragOngoing = false;
 	private List<Float> xAnchors;
-	private float lineY, totalScaleRatio;
+	private float lineY, totalScaleRatio, anchorStep;
 	private Paint mAntiAliasingPaint, mAlphaPaint, mCirclePaint;
 	
 	private int mViewWidth, mViewHeight;
@@ -73,18 +74,18 @@ public class LineupView extends View{
 			Log.d("MSG","ACHTUNG: LINE BITMAP NOT LOADED");
 		}
 		lineY = line.getHeight()/2;
-		float padding = 10;
+		float padding = 5;
 		if (objectsToSort == null){
 			Log.d("MSG","ACHTUNG: OBJECTS NOT LOADED");
 		}
-		float anchorStep = (line.getWidth() - padding*2)/objectsToSort.size();
+		anchorStep = (line.getWidth() - padding*2)/(objectsToSort.size() + 1);
 		float currentOffset = padding;
 		for (WeightedObject wo: objectsToSort){
 			float scaleHorizontal = (float)(anchorStep - padding*2)/wo.getWidth();
 			float scaleVertical = (float)(line.getHeight())/wo.getHeight();
 			wo.setScalingRatio(Math.min(1, Math.min(scaleHorizontal, scaleVertical)));
 			wo.setX(currentOffset + anchorStep/2 - wo.getWidth()/2);
-			xAnchors.add(currentOffset + anchorStep/2 - wo.getWidth()/2);
+			xAnchors.add(currentOffset + anchorStep/2);
 			wo.setY(lineY - wo.getHeight()/2);
 			currentOffset += padding * 2 + anchorStep;
 		}
@@ -144,12 +145,15 @@ public class LineupView extends View{
 	}
 	
 	public boolean check(){
-		float min = objectsToSort.get(0).getWeight();
-		for (WeightedObject wo: objectsToSort){
-			if (wo.getWeight() < min)
-				return false;
+		boolean answer = true;
+		for (int i = 0; i < objectsToSort.size() - 1; ++ i){
+			if (objectsToSort.get(i).getWeight() > objectsToSort.get(i+1).getWeight()){
+				answer = false;
+				break;
+			}
 		}
-		return true;
+		Log.d("MSG", "Answer: "+answer);
+		return answer;
 	}
 
 	
@@ -168,7 +172,10 @@ public class LineupView extends View{
 		//draw the line
 		canvas.drawBitmap(line, 0, 0, mAntiAliasingPaint);
 		for (float centerX: xAnchors){
-			canvas.drawCircle(centerX, lineY, line.getHeight()/6, mCirclePaint);
+			mCirclePaint.setColor(Color.GREEN);
+			canvas.drawCircle(centerX, lineY, line.getHeight()/4, mCirclePaint);
+			mCirclePaint.setColor(Color.WHITE);
+			canvas.drawCircle(centerX, lineY, line.getHeight()/5, mCirclePaint);
 		}
 		for (WeightedObject wo: objectsToSort){
 			destRect.set(wo.getX(), wo.getY(), wo.getX() + wo.getWidth(), wo.getY() + wo.getHeight());
@@ -209,17 +216,17 @@ public class LineupView extends View{
 				break;
 			case MotionEvent.ACTION_MOVE:
 				if (mDragOngoing) {
-					if (eventX + mDraggedObject.getBitmap().getWidth() / 2 <= line.getWidth()
-							&& eventX - mDraggedObject.getBitmap().getWidth()
+					if (eventX + mDraggedObject.getWidth() / 2 <= line.getWidth()
+							&& eventX - mDraggedObject.getWidth()
 									/ 2 >= 0) {
 						mDraggedObject.setX((int) Math.round(eventX
-								- mDraggedObject.getBitmap().getWidth() / 2));
+								- mDraggedObject.getWidth() / 2));
 					}
-					if (eventY + mDraggedObject.getBitmap().getHeight() / 2 <= line.getHeight()
-							&& eventY - mDraggedObject.getBitmap().getHeight()
+					if (eventY + mDraggedObject.getHeight() / 2 <= line.getHeight()
+							&& eventY - mDraggedObject.getHeight()
 									/ 2 >= 0) {
 						mDraggedObject.setY((int) Math.round(eventY
-								- mDraggedObject.getBitmap().getHeight() / 2));
+								- mDraggedObject.getHeight() / 2));
 					}
 					invalidate();
 					eventHandled = true;
@@ -227,8 +234,16 @@ public class LineupView extends View{
 				break;
 			case MotionEvent.ACTION_UP:
 				for (int i = 0; i < xAnchors.size(); ++i){
-					if (isInsideACircle(eventX*totalScaleRatio, eventY*totalScaleRatio, xAnchors.get(i), lineY, line.getHeight()/2)){
-						Collections.swap(objectsToSort, mDraggedObjectIndex, i);
+					if (eventX >= xAnchors.get(i) - anchorStep/2 && eventX <= xAnchors.get(i) + anchorStep/2){
+						if (i == mDraggedObjectIndex){
+							break;
+						}
+						Log.d("Coords", ""+eventX + "  " + (xAnchors.get(i)-anchorStep/2) + " " + (xAnchors.get(i)+anchorStep/2));
+						//swap coordinates
+						objectsToSort.get(i).setX(xAnchors.get(mDraggedObjectIndex) - objectsToSort.get(i).getWidth()/2);
+						objectsToSort.get(mDraggedObjectIndex).setX(xAnchors.get(i) - objectsToSort.get(mDraggedObjectIndex).getWidth()/2);
+						Collections.swap(objectsToSort, i, mDraggedObjectIndex);
+						break;
 					}
 				}
 				mDraggedObject = null;

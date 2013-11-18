@@ -43,6 +43,8 @@ public class LineupMode extends GameMode {
 
 	@Override
 	public boolean check() {
+		boolean answer = mLineupView.check();
+		Log.d("MSG", "Answer in mode: " + answer);
 		return mLineupView.check();
 	}
 
