@@ -14,7 +14,7 @@ import com.sutorei.canvasbalance.view.LineupView;
 
 public class LineupMode extends GameMode {
 
-	private LineupView mLineupView = null;
+	private LineupView mLineupView;
 
 	public LineupMode(Context context, ViewGroup parentView, TaskData taskData) {
 		super(context, parentView, taskData);
@@ -24,6 +24,7 @@ public class LineupMode extends GameMode {
 	@Override
 	public void init() {
 		super.init();
+		
 		mLineupView = new LineupView(getContext(), getTaskData().getQuestions());
 		mLineupView.setId(generateViewId());
 		Log.d("MSG", "Initialized. Inflating");
@@ -32,6 +33,7 @@ public class LineupMode extends GameMode {
 	@Override
 	public void inflate() {
 		super.inflate();
+		
 		View aboveView = (RelativeLayout) getParentView().getChildAt(
 				getParentView().getChildCount() - 1);
 
@@ -49,6 +51,7 @@ public class LineupMode extends GameMode {
 
 	@Override
 	public boolean check() {
+		Log.d("MSG", mLineupView.toString());
 		boolean answer = mLineupView.check();
 		Log.d("MSG", "Answer in mode: " + answer);
 		return mLineupView.check();
