@@ -6,14 +6,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.sutorei.canvasbalance.domain.WeightedObject;
+import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
 
 public class LineupView extends View{
 	private Bitmap line;
@@ -26,16 +29,21 @@ public class LineupView extends View{
 	
 	private int mViewWidth, mViewHeight;
 	
+	public List<WeightedObject> getObjectsToSort(){
+		return objectsToSort;
+	}
+	
 	private boolean isInsideACircle(float x, float y, float centerX, float centerY, float radius){
 		return (Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) < Math.pow(radius, 2));
 	}
 	
-	public LineupView(Context context, List<WeightedObject> objects, File imageFolder){
+	public LineupView(Context context, List<WeightedObject> objects){
 		super (context);
+		Log.d("MSG", "Initializing lineup");
 		objectsToSort = objects;
-		line = BitmapFactory.decodeFile(imageFolder
-				+ File.separator + "line.png");
+		line = BalanceBitmapContainer.getLineBitmap();
 		
+		xAnchors = new ArrayList<Float>();
 		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mAntiAliasingPaint.setFilterBitmap(true);
 		mAntiAliasingPaint.setDither(true);
@@ -47,8 +55,11 @@ public class LineupView extends View{
 		mCirclePaint.setColor(line.getPixel(0, line.getHeight()/2));
 		
 		this.setOnTouchListener(new LineupOnTouchListener());
+		Log.d("MSG", "Initialized. Shuffling");
 		shuffle();
+		Log.d("MSG", "Shuffled. Scaling");
 		initCoordinatesAndScale();
+		Log.d("MSG", "Init finished. Proceeding");
 		initialized = true;
 		
 	}
@@ -58,8 +69,14 @@ public class LineupView extends View{
 	}
 	
 	private void initCoordinatesAndScale(){
+		if (line == null){
+			Log.d("MSG","ACHTUNG: LINE BITMAP NOT LOADED");
+		}
 		lineY = line.getHeight()/2;
 		float padding = 10;
+		if (objectsToSort == null){
+			Log.d("MSG","ACHTUNG: OBJECTS NOT LOADED");
+		}
 		float anchorStep = (line.getWidth() - padding*2)/objectsToSort.size();
 		float currentOffset = padding;
 		for (WeightedObject wo: objectsToSort){
@@ -112,6 +129,7 @@ public class LineupView extends View{
 			this.mViewWidth = mandatoryWidth;
 			this.mViewHeight = Math.round(mandatoryWidth / proportion);
 		}
+		Log.d("MSG",""+mViewWidth+" "+mViewHeight);
 	}
 	
 	@Override
@@ -123,6 +141,15 @@ public class LineupView extends View{
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
+	}
+	
+	public boolean check(){
+		float min = objectsToSort.get(0).getWeight();
+		for (WeightedObject wo: objectsToSort){
+			if (wo.getWeight() < min)
+				return false;
+		}
+		return true;
 	}
 
 	
@@ -200,12 +227,13 @@ public class LineupView extends View{
 				break;
 			case MotionEvent.ACTION_UP:
 				for (int i = 0; i < xAnchors.size(); ++i){
-					if (isInsideACircle(eventX, eventY, xAnchors.get(i), lineY, line.getHeight()/4)){
+					if (isInsideACircle(eventX*totalScaleRatio, eventY*totalScaleRatio, xAnchors.get(i), lineY, line.getHeight()/2)){
 						Collections.swap(objectsToSort, mDraggedObjectIndex, i);
 					}
 				}
 				mDraggedObject = null;
 				eventHandled = true;
+				invalidate();
 				break;
 			}
 			return eventHandled;

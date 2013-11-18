@@ -5,6 +5,7 @@ import java.text.ParseException;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.widget.RelativeLayout;
 
 import com.hexonxons.extension.AbstractKeyboard;
@@ -19,6 +20,7 @@ import com.sutorei.canvasbalance.view.game.EstablishBalanceMode;
 import com.sutorei.canvasbalance.view.game.FindMassInteractiveMode;
 import com.sutorei.canvasbalance.view.game.FindMassMode;
 import com.sutorei.canvasbalance.view.game.GameMode;
+import com.sutorei.canvasbalance.view.game.LineupMode;
 
 @SuppressLint("ViewConstructor")
 public class MainView extends RelativeLayout implements ExtensionViewImpl {
@@ -58,6 +60,8 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 		case FIND_MASS_USING_EQUATION_INTERACTIVE:
 			break;
 		case LINE_UP_OBJECTS:
+			Log.d("MSG", "Preparing layout");
+			mGameMode = new LineupMode(context, this, mTaskData);
 			break;
 		case FIND_THE_DIFFERENCE:
 			break;

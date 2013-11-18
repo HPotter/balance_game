@@ -28,6 +28,12 @@
 			"task_version":1,
 			"task_alias":"balance",
 			"task_name":"Внимательно посмотри и ответь на вопрос"
+		},
+		{
+			"task_id":"task5",
+			"task_version":1,
+			"task_alias":"balance",
+			"task_name":"Отсортируй предметы"
 		}
 	]
 }

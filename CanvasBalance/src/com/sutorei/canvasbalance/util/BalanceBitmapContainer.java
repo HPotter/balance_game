@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class BalanceBitmapContainer {
 	private static Bitmap leftCupBitmap = null;
@@ -12,7 +13,7 @@ public class BalanceBitmapContainer {
 	private static Bitmap supportBitmap = null;
 	private static Bitmap facePositive = null;
 	private static Bitmap faceNegative = null;
-
+	private static Bitmap line = null;
 	private BalanceBitmapContainer() {
 	}
 
@@ -41,6 +42,13 @@ public class BalanceBitmapContainer {
 			faceNegative = BitmapFactory.decodeFile(imageFolder
 					+ File.separator + "sticker_false_big.png");
 		}
+		
+		if (line == null){
+			line = BitmapFactory.decodeFile(imageFolder
+					+ File.separator + "line.png");
+			if (line == null)
+				Log.d("BalanceBitmapContainer", "Failed to load!");
+		}
 	}
 
 	public static Bitmap getLeftCupBitmap() {
@@ -65,5 +73,9 @@ public class BalanceBitmapContainer {
 	
 	public static Bitmap getFaceNegativeBitmap(){
 		return faceNegative;
+	}
+	
+	public static Bitmap getLineBitmap(){
+		return line;
 	}
 }
