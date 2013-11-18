@@ -150,12 +150,20 @@ public abstract class GameMode {
 
 		layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		mBalancePager.setId(generateViewId());
+
+		RelativeLayout wrapper = new RelativeLayout(getContext());
 		if (mBalanceViews.size() == 1) {
-			getParentView().addView(mRelativeLayouts.get(0), layoutParams);
+			wrapper.addView(mRelativeLayouts.get(0), new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		} else {
-			getParentView().addView(mBalancePager, layoutParams);
+			wrapper.addView(mBalancePager, new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
+		getParentView().addView(wrapper, layoutParams);
 	}
 
 	// TODO: move correctness display to separate method
