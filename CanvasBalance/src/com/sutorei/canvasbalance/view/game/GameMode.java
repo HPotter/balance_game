@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v4.view.ViewPager;
 import android.text.InputType;
 import android.view.ViewGroup;
@@ -156,32 +158,50 @@ public abstract class GameMode {
 		}
 	}
 
+	// TODO: move correctness display to separate method
 	public final boolean checkBalances() {
 		boolean result = true;
 
-		for (int i = 0; result && i < mBalanceViews.size(); ++i) {
+		for (int i = 0; i < mBalanceViews.size(); ++i) {
 			if (mBalanceViews.get(i).getCurrentState() != getTaskData()
 					.getBalanceData().get(i).getBalanceState()
 					|| !mBalanceViews.get(i).getAvaliableObjects().isEmpty()) {
+				mBalanceViews.get(i).setCorrectnessPopup(false);
 				result = false;
+			} else {
+				mBalanceViews.get(i).setCorrectnessPopup(true);
 			}
 		}
 
 		return result;
 	}
 
+	// TODO: move correctness display to separate method
 	public final boolean checkAnswers() {
 		boolean result = true;
 
 		Iterator<Integer> correctAnswerIterator = mTaskData.getCorrectAnswers()
 				.iterator();
 		Iterator<EditText> answerFieldIterator = mAnswerFields.iterator();
-		while (result && correctAnswerIterator.hasNext()
-				&& answerFieldIterator.hasNext()) {
-			int answer = Integer.decode(answerFieldIterator.next().getText()
-					.toString());
+		while (correctAnswerIterator.hasNext() && answerFieldIterator.hasNext()) {
+			EditText currentAnswerField = answerFieldIterator.next();
+			int answer = -1;
+			try {
+				answer = Integer
+						.decode(currentAnswerField.getText().toString());
+			} catch (NumberFormatException e) {
+				// field is empty
+			}
 			int correctAnswer = correctAnswerIterator.next();
-			result = (answer == correctAnswer);
+
+			if (answer != correctAnswer) {
+				result = false;
+				currentAnswerField.getBackground().setColorFilter(Color.RED,
+						PorterDuff.Mode.MULTIPLY);
+			} else {
+				currentAnswerField.getBackground().setColorFilter(Color.GREEN,
+						PorterDuff.Mode.MULTIPLY);
+			}
 		}
 
 		return result;

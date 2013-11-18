@@ -14,7 +14,7 @@ public class FindMassInteractiveMode extends GameMode {
 
 	@Override
 	public boolean check() {
-		return super.checkBalances() && super.checkAnswers();
+		return super.checkAnswers();
 	}
 
 	@Override

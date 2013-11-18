@@ -459,11 +459,15 @@ public class BalanceView extends View {
 			positivePopupVisible = false;
 			negativePopupVisible = true;
 		}
+		
+		invalidate();
 	}
 	
 	public void dismissPopup(){
 		positivePopupVisible = false;
 		negativePopupVisible = false;
+		
+		invalidate();
 	}
 	private class AnimationUpdateThread implements Runnable {
 		private int degreeClause;
