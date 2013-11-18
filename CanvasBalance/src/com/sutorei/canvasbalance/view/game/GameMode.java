@@ -90,7 +90,7 @@ public abstract class GameMode {
 			textView = new TextView(mContext);
 			textView.setId(generateViewId());
 			textView.setText(balanceTextIterator.next());
-			if(FontContainer.isTypefaceSet()) {
+			if (FontContainer.isTypefaceSet()) {
 				textView.setTypeface(FontContainer.getTypeface());
 			}
 			balanceView = new BalanceView(getContext(), balanceData);
@@ -148,10 +148,6 @@ public abstract class GameMode {
 
 		layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
-		layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		mBalancePager.setId(generateViewId());
 		if (mBalanceViews.size() == 1) {
 			getParentView().addView(mRelativeLayouts.get(0), layoutParams);
@@ -190,9 +186,9 @@ public abstract class GameMode {
 
 		return result;
 	}
-	
+
 	public final void setKeyboard(AbstractKeyboard keyboard) {
-		for(EditText editText : mAnswerFields) {
+		for (EditText editText : mAnswerFields) {
 			keyboard.registerEditText(editText);
 		}
 	}
