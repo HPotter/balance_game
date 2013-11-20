@@ -196,7 +196,7 @@ public class LineupView extends View {
 	private int mDraggedObjectIndex;
 
 	private class LineupOnTouchListener implements View.OnTouchListener {
-
+		
 		@Override
 		public boolean onTouch(View view, MotionEvent event) {
 			int eventX = (int) (event.getX() / totalScaleRatio);
@@ -230,33 +230,35 @@ public class LineupView extends View {
 						mDraggedObject.setY((int) Math.round(eventY
 								- mDraggedObject.getHeight() / 2));
 					}
+					for (int i = 0; i < xAnchors.size(); ++i) {
+						if (eventX >= xAnchors.get(i) - anchorStep / 2
+								&& eventX <= xAnchors.get(i) + anchorStep / 2) {
+							if (i == mDraggedObjectIndex) {
+								break;
+							}
+							Log.d("Coords", "" + eventX + "  "
+									+ (xAnchors.get(i) - anchorStep / 2) + " "
+									+ (xAnchors.get(i) + anchorStep / 2));
+							// swap coordinates
+							objectsToSort.get(i).setX(
+									xAnchors.get(mDraggedObjectIndex)
+											- objectsToSort.get(i).getWidth() / 2);
+							objectsToSort.get(mDraggedObjectIndex).setX(
+									xAnchors.get(i)
+											- objectsToSort
+													.get(mDraggedObjectIndex)
+													.getWidth() / 2);
+							Collections.swap(objectsToSort, i, mDraggedObjectIndex);
+							mDraggedObjectIndex = i;
+							break;
+						}
+					}
 					invalidate();
 					eventHandled = true;
 				}
 				break;
 			case MotionEvent.ACTION_UP:
-				for (int i = 0; i < xAnchors.size(); ++i) {
-					if (eventX >= xAnchors.get(i) - anchorStep / 2
-							&& eventX <= xAnchors.get(i) + anchorStep / 2) {
-						if (i == mDraggedObjectIndex) {
-							break;
-						}
-						Log.d("Coords", "" + eventX + "  "
-								+ (xAnchors.get(i) - anchorStep / 2) + " "
-								+ (xAnchors.get(i) + anchorStep / 2));
-						// swap coordinates
-						objectsToSort.get(i).setX(
-								xAnchors.get(mDraggedObjectIndex)
-										- objectsToSort.get(i).getWidth() / 2);
-						objectsToSort.get(mDraggedObjectIndex).setX(
-								xAnchors.get(i)
-										- objectsToSort
-												.get(mDraggedObjectIndex)
-												.getWidth() / 2);
-						Collections.swap(objectsToSort, i, mDraggedObjectIndex);
-						break;
-					}
-				}
+				swappedI = -1;
 				mDraggedObject = null;
 				eventHandled = true;
 				invalidate();
