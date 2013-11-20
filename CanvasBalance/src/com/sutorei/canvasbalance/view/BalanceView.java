@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -87,9 +88,11 @@ public class BalanceView extends View {
 	private BalanceState mPreviousState, mCurrentState;
 
 	// inner logic
-	private BalanceViewObject mLeftCup, mRightCup, mBeam, mSupport, mPositivePopup, mNegativePopup;
+	private BalanceViewObject mLeftCup, mRightCup, mBeam, mSupport,
+			mPositivePopup, mNegativePopup;
 	private volatile BalanceViewObject mBeamBent;
-	private boolean mDragOngoing, taskLoaded, positivePopupVisible, negativePopupVisible;
+	private boolean mDragOngoing, taskLoaded, positivePopupVisible,
+			negativePopupVisible;
 	private volatile boolean mAnimationOngoing;
 	private Paint mAntiAliasingPaint, mAlphaPaint;
 	private WeightedObject mDraggedObject = null;
@@ -101,6 +104,14 @@ public class BalanceView extends View {
 	private boolean interactive, fixed;
 	private int leftCupObjectOffset;
 	private int rightCupObjectOffset;
+	
+	private Handler invalidatorHandler;
+	
+	private Runnable invalidatorRunnable = new Runnable(){
+		public void run(){
+			invalidate();
+		}
+	};
 
 	private final int BASE_WIDTH, BASE_HEIGHT;
 
@@ -129,11 +140,13 @@ public class BalanceView extends View {
 		mBeam = new BalanceViewObject(BalanceBitmapContainer.getBeamBitmap());
 		mSupport = new BalanceViewObject(
 				BalanceBitmapContainer.getSupportBitmap());
-		
+
 		positivePopupVisible = negativePopupVisible = false;
-		
-		mPositivePopup = new BalanceViewObject(BalanceBitmapContainer.getFacePositiveBitmap());
-		mNegativePopup = new BalanceViewObject(BalanceBitmapContainer.getFaceNegativeBitmap());
+
+		mPositivePopup = new BalanceViewObject(
+				BalanceBitmapContainer.getFacePositiveBitmap());
+		mNegativePopup = new BalanceViewObject(
+				BalanceBitmapContainer.getFaceNegativeBitmap());
 
 		BASE_WIDTH = mLeftCup.getBitmap().getWidth() / 2
 				+ mBeam.getBitmap().getWidth()
@@ -151,6 +164,8 @@ public class BalanceView extends View {
 
 		mAlphaPaint = new Paint();
 		mAlphaPaint.setAlpha(100);
+		
+		invalidatorHandler = new Handler();
 
 		this.setOnTouchListener(new BalanceOnTouchListener());
 
@@ -169,19 +184,19 @@ public class BalanceView extends View {
 		for (WeightedObject wo : mObjectsOnLeft) {
 			mWeightOnLeft += wo.getWeight();
 			if (wo.getBitmap().getHeight() > maxHeight) {
-				wo.setScalingRatio(maxHeight/wo.getBitmap().getHeight());
+				wo.setScalingRatio(maxHeight / wo.getBitmap().getHeight());
 			}
 		}
 		for (WeightedObject wo : mObjectsOnRight) {
 			mWeightOnRight += wo.getWeight();
 			if (wo.getBitmap().getHeight() > maxHeight) {
-				wo.setScalingRatio(maxHeight/wo.getBitmap().getHeight());
+				wo.setScalingRatio(maxHeight / wo.getBitmap().getHeight());
 			}
 		}
 
 		for (WeightedObject wo : mAvaliableObjects) {
 			if (wo.getBitmap().getHeight() > maxHeight) {
-				wo.setScalingRatio(maxHeight/wo.getBitmap().getHeight());
+				wo.setScalingRatio(maxHeight / wo.getBitmap().getHeight());
 			}
 		}
 
@@ -246,14 +261,17 @@ public class BalanceView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
+	int degreeClause, direction;
 	protected void initCoordinates() {
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
 
 		mRotationAnimation.reset();
-		
-		mPositivePopup.setX(10); mPositivePopup.setY(10);
-		mNegativePopup.setX(10); mNegativePopup.setY(10);
+
+		mPositivePopup.setX(10);
+		mPositivePopup.setY(10);
+		mNegativePopup.setX(10);
+		mNegativePopup.setY(10);
 
 		mSupport.setX(BASE_WIDTH / 2 - mSupport.getBitmap().getWidth() / 2);
 		mSupport.setY(BASE_HEIGHT / 2);
@@ -329,6 +347,8 @@ public class BalanceView extends View {
 			mDegree = 14;
 			break;
 		}
+		degreeClause = Math.round(mDegree);
+		direction = 0;
 	}
 
 	RectF destRect = new RectF();
@@ -346,10 +366,10 @@ public class BalanceView extends View {
 		totalScaleRatio = Math.max(scaleWidth, scaleHeight);
 		canvas.save();
 		canvas.scale(totalScaleRatio, totalScaleRatio);
+		
 		if (!fixed) {
 			mCurrentState = checkBalance();
 			if (mCurrentState != mPreviousState) {
-				int degreeClause, direction;
 				switch (mCurrentState) {
 				case LEFT_IS_HEAVIER:
 					degreeClause = -14;
@@ -373,10 +393,43 @@ public class BalanceView extends View {
 							"Unhandled state of balance");
 				}
 				mPreviousState = mCurrentState;
-				AnimationUpdateThread at = new AnimationUpdateThread(
-						degreeClause, direction);
-				Thread t = new Thread(at);
-				t.start();
+				mAnimationOngoing = true;
+			}
+			if (mAnimationOngoing){
+				float startingSignum = Math.signum(mDegree - degreeClause);
+				if ((mDegree - degreeClause) * startingSignum >= 1e-3) {
+						mDegree += (float) direction * 32 / 100;
+						if ((mDegree - degreeClause) * startingSignum < 1e-3) {
+							mDegree = degreeClause;
+						}
+						mLeftCup.setY(mLeftCup.getY() - direction
+								* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
+						mRightCup.setY(mRightCup.getY() + direction
+								* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
+						mRotationAnimation.reset();
+						mBeamBent.setX(mSupport.getX()
+								+ mSupport.getBitmap().getWidth() / 2
+								- mBeam.getBitmap().getWidth() / 2);
+						mBeamBent.setY(mSupport.getY()
+								- mBeamBent.getBitmap().getHeight() / 2
+								+ mBeam.getBitmap().getHeight() / 2);
+						mRotationAnimation.postRotate(mDegree, mBeam.getBitmap()
+								.getWidth() / 2, mBeam.getBitmap().getHeight() / 2);
+						mRotationAnimation.postTranslate(mBeamBent.getX(),
+								mBeamBent.getY());
+						for (WeightedObject wo : mObjectsOnRight) {
+							wo.setY(mRightCup.getY()
+									+ mRightCup.getBitmap().getHeight() * 3 / 4
+									- wo.getBitmap().getHeight());
+						}
+						for (WeightedObject wo : mObjectsOnLeft) {
+							wo.setY(mLeftCup.getY()
+									+ mLeftCup.getBitmap().getHeight() * 3 / 4
+									- wo.getBitmap().getHeight());
+						}
+				} else {
+					mAnimationOngoing = false;
+				}
 			}
 		}
 		leftCupObjectOffset = 0;
@@ -394,7 +447,7 @@ public class BalanceView extends View {
 		}
 		for (WeightedObject wo : mObjectsOnRight) {
 			wo.setX(mRightCup.getX() - rightCupObjectOffset
-					+ mRightCup.getBitmap().getWidth() * 86/100
+					+ mRightCup.getBitmap().getWidth() * 86 / 100
 					- Math.round(wo.getWidth()));
 			wo.setY(mRightCup.getY() + mRightCup.getBitmap().getHeight() * 1
 					/ 4 - Math.round(wo.getHeight()));
@@ -403,8 +456,8 @@ public class BalanceView extends View {
 			canvas.drawBitmap(wo.getBitmap(), null, destRect,
 					mAntiAliasingPaint);
 			rightCupObjectOffset = (rightCupObjectOffset + mRightCup
-                    .getBitmap().getWidth() / 4)
-                    % (mRightCup.getBitmap().getWidth() * 7 / 11);
+					.getBitmap().getWidth() / 4)
+					% (mRightCup.getBitmap().getWidth() * 7 / 11);
 		}
 		for (WeightedObject wo : mObjectsOnLeft) {
 			wo.setX(mLeftCup.getX() + leftCupObjectOffset
@@ -435,100 +488,38 @@ public class BalanceView extends View {
 				mAntiAliasingPaint);
 		canvas.drawBitmap(mSupport.getBitmap(), mSupport.getX(),
 				mSupport.getY(), mAntiAliasingPaint);
-		
-		if (positivePopupVisible){
-			canvas.drawBitmap(mPositivePopup.getBitmap(), 
-					mPositivePopup.getX(), 
-					mPositivePopup.getY(),
+
+		if (positivePopupVisible) {
+			canvas.drawBitmap(mPositivePopup.getBitmap(),
+					mPositivePopup.getX(), mPositivePopup.getY(),
 					mAntiAliasingPaint);
 		}
-		if (negativePopupVisible){
-			canvas.drawBitmap(mNegativePopup.getBitmap(), 
-					mNegativePopup.getX(), 
-					mNegativePopup.getY(),
+		if (negativePopupVisible) {
+			canvas.drawBitmap(mNegativePopup.getBitmap(),
+					mNegativePopup.getX(), mNegativePopup.getY(),
 					mAntiAliasingPaint);
 		}
 		canvas.restore();
+		invalidatorHandler.postDelayed(invalidatorRunnable, 1000/60);
 	}
 
-	public void setCorrectnessPopup(boolean isCorrect){
-		if (isCorrect){
+	public void setCorrectnessPopup(boolean isCorrect) {
+		if (isCorrect) {
 			positivePopupVisible = true;
 			negativePopupVisible = false;
 		} else {
 			positivePopupVisible = false;
 			negativePopupVisible = true;
 		}
-		
+
 		invalidate();
 	}
-	
-	public void dismissPopup(){
+
+	public void dismissPopup() {
 		positivePopupVisible = false;
 		negativePopupVisible = false;
-		
+
 		invalidate();
-	}
-	private class AnimationUpdateThread implements Runnable {
-		private int degreeClause;
-		// 1 is clockwise rotation, -1 is ccw rotation
-		private int direction;
-
-		private int totalFrames;
-
-		public AnimationUpdateThread(int degreeClause, int direction) {
-			this.direction = direction;
-			this.degreeClause = degreeClause;
-			totalFrames = 0;
-		}
-
-		@Override
-		public void run() {
-			mAnimationOngoing = true;
-			float startingSignum = Math.signum(mDegree - degreeClause);
-			while ((mDegree - degreeClause) * startingSignum >= 1e-3) {
-				mDegree += (float) direction * 32 / 100;
-				if ((mDegree - degreeClause) * startingSignum < 1e-3) {
-					mDegree = degreeClause;
-				}
-				mLeftCup.setY(mLeftCup.getY() - direction
-						* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
-				mRightCup.setY(mRightCup.getY() + direction
-						* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
-				mRotationAnimation.reset();
-				mBeamBent.setX(mSupport.getX()
-						+ mSupport.getBitmap().getWidth() / 2
-						- mBeam.getBitmap().getWidth() / 2);
-				mBeamBent.setY(mSupport.getY()
-						- mBeamBent.getBitmap().getHeight() / 2
-						+ mBeam.getBitmap().getHeight() / 2);
-				mRotationAnimation.postRotate(mDegree, mBeam.getBitmap()
-						.getWidth() / 2, mBeam.getBitmap().getHeight() / 2);
-				mRotationAnimation.postTranslate(mBeamBent.getX(),
-						mBeamBent.getY());
-				for (WeightedObject wo : mObjectsOnRight) {
-					wo.setY(mRightCup.getY()
-							+ mRightCup.getBitmap().getHeight() * 3 / 4
-							- wo.getBitmap().getHeight());
-				}
-				for (WeightedObject wo : mObjectsOnLeft) {
-					wo.setY(mLeftCup.getY() + mLeftCup.getBitmap().getHeight()
-							* 3 / 4 - wo.getBitmap().getHeight());
-				}
-				BalanceView.this.postInvalidate();
-
-				try {
-					Thread.sleep(16);
-				} catch (InterruptedException e) {
-
-				}
-				totalFrames++;
-			}
-			mDegree = degreeClause;
-			BalanceView.this.postInvalidate();
-			mAnimationOngoing = false;
-			Log.d("Frames", "" + totalFrames);
-		}
 	}
 
 	private class BalanceOnTouchListener implements View.OnTouchListener {
