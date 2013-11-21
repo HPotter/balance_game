@@ -526,7 +526,6 @@ public class BalanceView extends View {
 
 		@Override
 		public boolean onTouch(View view, MotionEvent event) {
-			dismissPopup();
 			int eventX = (int) (event.getX() / totalScaleRatio);
 			int eventY = (int) (event.getY() / totalScaleRatio);
 			if (mAnimationOngoing)
