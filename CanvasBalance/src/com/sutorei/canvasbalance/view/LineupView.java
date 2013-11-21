@@ -258,7 +258,6 @@ public class LineupView extends View {
 				}
 				break;
 			case MotionEvent.ACTION_UP:
-				swappedI = -1;
 				mDraggedObject = null;
 				eventHandled = true;
 				invalidate();
