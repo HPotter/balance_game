@@ -11,7 +11,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -98,17 +97,17 @@ public class BalanceView extends View {
 	private WeightedObject mDraggedObject = null;
 	private float totalScaleRatio;
 	private int mDraggedObjectIndex, mDraggedObjectOrigin;
-	// object origin -1 means left cup, 1 - right cup, 0 - avaliable objects
+	// object origin -1 means left cup, 1 - right cup, 0 - available objects
 	private Matrix mRotationAnimation;
 	private volatile float mDegree;
 	private boolean interactive, fixed;
 	private int leftCupObjectOffset;
 	private int rightCupObjectOffset;
-	
+
 	private Handler invalidatorHandler;
-	
-	private Runnable invalidatorRunnable = new Runnable(){
-		public void run(){
+
+	private Runnable invalidatorRunnable = new Runnable() {
+		public void run() {
 			invalidate();
 		}
 	};
@@ -164,7 +163,7 @@ public class BalanceView extends View {
 
 		mAlphaPaint = new Paint();
 		mAlphaPaint.setAlpha(100);
-		
+
 		invalidatorHandler = new Handler();
 
 		this.setOnTouchListener(new BalanceOnTouchListener());
@@ -219,7 +218,6 @@ public class BalanceView extends View {
 		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-		Log.e("", "" + widthSize + " " + heightSize);
 		int mandatoryHeight = desiredHeight;
 		int mandatoryWidth = desiredWidth;
 		int screenWidth = widthSize;
@@ -262,6 +260,7 @@ public class BalanceView extends View {
 	}
 
 	int degreeClause, direction;
+
 	protected void initCoordinates() {
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
@@ -360,13 +359,10 @@ public class BalanceView extends View {
 		}
 		float scaleWidth = mViewWidth / (float) BASE_WIDTH;
 		float scaleHeight = mViewHeight / (float) BASE_HEIGHT;
-		Log.d("Drawing measures", "" + mViewWidth + " " + mViewHeight + " "
-				+ scaleWidth + " " + scaleHeight + " " + canvas.getWidth()
-				+ " " + canvas.getHeight());
 		totalScaleRatio = Math.max(scaleWidth, scaleHeight);
 		canvas.save();
 		canvas.scale(totalScaleRatio, totalScaleRatio);
-		
+
 		if (!fixed) {
 			mCurrentState = checkBalance();
 			if (mCurrentState != mPreviousState) {
@@ -395,47 +391,83 @@ public class BalanceView extends View {
 				mPreviousState = mCurrentState;
 				mAnimationOngoing = true;
 			}
-			if (mAnimationOngoing){
-				float startingSignum = Math.signum(mDegree - degreeClause);
-				if ((mDegree - degreeClause) * startingSignum >= 1e-3) {
-						mDegree += (float) direction * 32 / 100;
-						if ((mDegree - degreeClause) * startingSignum < 1e-3) {
-							mDegree = degreeClause;
-						}
-						mLeftCup.setY(mLeftCup.getY() - direction
-								* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
-						mRightCup.setY(mRightCup.getY() + direction
-								* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
-						mRotationAnimation.reset();
-						mBeamBent.setX(mSupport.getX()
-								+ mSupport.getBitmap().getWidth() / 2
-								- mBeam.getBitmap().getWidth() / 2);
-						mBeamBent.setY(mSupport.getY()
-								- mBeamBent.getBitmap().getHeight() / 2
-								+ mBeam.getBitmap().getHeight() / 2);
-						mRotationAnimation.postRotate(mDegree, mBeam.getBitmap()
-								.getWidth() / 2, mBeam.getBitmap().getHeight() / 2);
-						mRotationAnimation.postTranslate(mBeamBent.getX(),
-								mBeamBent.getY());
-						for (WeightedObject wo : mObjectsOnRight) {
-							wo.setY(mRightCup.getY()
-									+ mRightCup.getBitmap().getHeight() * 3 / 4
-									- wo.getBitmap().getHeight());
-						}
-						for (WeightedObject wo : mObjectsOnLeft) {
-							wo.setY(mLeftCup.getY()
-									+ mLeftCup.getBitmap().getHeight() * 3 / 4
-									- wo.getBitmap().getHeight());
-						}
-				} else {
-					mAnimationOngoing = false;
-				}
+			if (mAnimationOngoing) {
+				balanceCoordinatesAdjustment();
 			}
 		}
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
 		float xOffset = 5;
-		float yOffset = Math.round(BASE_HEIGHT * 19 / 20);
+		float yOffset = Math.round(BASE_HEIGHT * 19 / 20);		
+		objectCoordinatesAdjustment(xOffset, yOffset, canvas);
+		
+		canvas.drawBitmap(mLeftCup.getBitmap(), mLeftCup.getX(),
+				mLeftCup.getY(), mAntiAliasingPaint);
+		canvas.drawBitmap(mRightCup.getBitmap(), mRightCup.getX(),
+				mRightCup.getY(), mAntiAliasingPaint);
+		canvas.drawBitmap(mBeamBent.getBitmap(), mRotationAnimation,
+				mAntiAliasingPaint);
+		canvas.drawBitmap(mSupport.getBitmap(), mSupport.getX(),
+				mSupport.getY(), mAntiAliasingPaint);
+
+		if (positivePopupVisible) {
+			canvas.drawBitmap(mPositivePopup.getBitmap(),
+					mPositivePopup.getX(), mPositivePopup.getY(),
+					mAntiAliasingPaint);
+		}
+		if (negativePopupVisible) {
+			canvas.drawBitmap(mNegativePopup.getBitmap(),
+					mNegativePopup.getX(), mNegativePopup.getY(),
+					mAntiAliasingPaint);
+		}
+		canvas.restore();
+		invalidatorHandler.postDelayed(invalidatorRunnable, 1000 / 60);
+	}
+
+	private void balanceCoordinatesAdjustment() {
+		float startingSignum = Math.signum(mDegree - degreeClause);
+		float lever = mBeam.getBitmap().getWidth()/2 - HORIZONTAL_CUP_ADJUSTMENT;
+		if ((mDegree - degreeClause) * startingSignum >= 1e-3) {
+			mDegree += (float) direction * 32 / 100;
+			if ((mDegree - degreeClause) * startingSignum < 1e-3) {
+				mDegree = degreeClause;
+			}
+			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
+					+ HORIZONTAL_CUP_ADJUSTMENT + lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mLeftCup.getBitmap().getHeight() + 5 - lever * (float)Math.sin(mDegree*Math.PI/180f));
+//			mLeftCup.setY(mLeftCup.getY() - direction
+//					* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
+//			mRightCup.setY(mRightCup.getY() + direction
+//					* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
+			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
+					+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT - lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+					- mRightCup.getBitmap().getHeight() + 5 + lever * (float)Math.sin(mDegree*Math.PI/180f));
+			mRotationAnimation.reset();
+			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
+					/ 2 - mBeam.getBitmap().getWidth() / 2);
+			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
+					/ 2 + mBeam.getBitmap().getHeight() / 2);
+			mRotationAnimation.postRotate(mDegree,
+					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
+							.getHeight() / 2);
+			mRotationAnimation
+					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
+			for (WeightedObject wo : mObjectsOnRight) {
+				wo.setY(mRightCup.getY() + mRightCup.getBitmap().getHeight()
+						* 3 / 4 - wo.getBitmap().getHeight());
+			}
+			for (WeightedObject wo : mObjectsOnLeft) {
+				wo.setY(mLeftCup.getY() + mLeftCup.getBitmap().getHeight() * 3
+						/ 4 - wo.getBitmap().getHeight());
+			}
+		} else {
+			mAnimationOngoing = false;
+		}
+	}
+	
+	private void objectCoordinatesAdjustment(float xOffset, float yOffset, Canvas canvas){
 		for (WeightedObject wo : mAvaliableObjects) {
 			wo.setX(xOffset);
 			wo.setY(yOffset - Math.round(wo.getHeight()));
@@ -480,27 +512,6 @@ public class BalanceView extends View {
 			canvas.drawBitmap(mDraggedObject.getBitmap(), null, destRect,
 					mAlphaPaint);
 		}
-		canvas.drawBitmap(mLeftCup.getBitmap(), mLeftCup.getX(),
-				mLeftCup.getY(), mAntiAliasingPaint);
-		canvas.drawBitmap(mRightCup.getBitmap(), mRightCup.getX(),
-				mRightCup.getY(), mAntiAliasingPaint);
-		canvas.drawBitmap(mBeamBent.getBitmap(), mRotationAnimation,
-				mAntiAliasingPaint);
-		canvas.drawBitmap(mSupport.getBitmap(), mSupport.getX(),
-				mSupport.getY(), mAntiAliasingPaint);
-
-		if (positivePopupVisible) {
-			canvas.drawBitmap(mPositivePopup.getBitmap(),
-					mPositivePopup.getX(), mPositivePopup.getY(),
-					mAntiAliasingPaint);
-		}
-		if (negativePopupVisible) {
-			canvas.drawBitmap(mNegativePopup.getBitmap(),
-					mNegativePopup.getX(), mNegativePopup.getY(),
-					mAntiAliasingPaint);
-		}
-		canvas.restore();
-		invalidatorHandler.postDelayed(invalidatorRunnable, 1000/60);
 	}
 
 	public void setCorrectnessPopup(boolean isCorrect) {
