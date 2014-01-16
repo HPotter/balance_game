@@ -285,14 +285,6 @@ public class BalanceView extends View {
 		switch (mCurrentState) {
 		case EQUAL:
 			mBeamBent = mBeam.copy();
-			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
-					+ HORIZONTAL_CUP_ADJUSTMENT);
-			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mLeftCup.getBitmap().getHeight() + 5);
-			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
-					+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT);
-			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mRightCup.getBitmap().getHeight() + 5);
 			mDegree = 0;
 			mRotationAnimation
 					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
@@ -306,17 +298,6 @@ public class BalanceView extends View {
 					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
 			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
 					/ 2 + mBeam.getBitmap().getHeight() / 2);
-			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
-					+ HORIZONTAL_CUP_ADJUSTMENT);
-			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mLeftCup.getBitmap().getHeight() + 5
-					+ VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
-			mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
-					- mRightCup.getBitmap().getWidth() / 2
-					- HORIZONTAL_CUP_ADJUSTMENT);
-			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mRightCup.getBitmap().getHeight() + 5
-					- VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
 			mRotationAnimation
 					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
 			mDegree = -14;
@@ -330,22 +311,20 @@ public class BalanceView extends View {
 					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
 			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
 					/ 2 + mBeam.getBitmap().getHeight() / 2);
-			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
-					+ HORIZONTAL_CUP_ADJUSTMENT);
-			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mLeftCup.getBitmap().getHeight() + 5
-					- VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
-			mRightCup.setX(mBeam.getX() + mBeam.getBitmap().getWidth()
-					- mRightCup.getBitmap().getWidth() / 2
-					- HORIZONTAL_CUP_ADJUSTMENT);
-			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mRightCup.getBitmap().getHeight() + 5
-					+ VERTICAL_DISBALANCED_CUP_ADJUSTMENT);
 			mRotationAnimation
 					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
 			mDegree = 14;
 			break;
 		}
+		float lever = mBeam.getBitmap().getWidth()/2 - HORIZONTAL_CUP_ADJUSTMENT;
+		mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
+				+ HORIZONTAL_CUP_ADJUSTMENT + lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+		mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+				- mLeftCup.getBitmap().getHeight() + 5 - lever * (float)Math.sin(mDegree*Math.PI/180f));
+		mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
+				+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT - lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+		mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
+				- mRightCup.getBitmap().getHeight() + 5 + lever * (float)Math.sin(mDegree*Math.PI/180f));
 		degreeClause = Math.round(mDegree);
 		direction = 0;
 	}
@@ -436,10 +415,6 @@ public class BalanceView extends View {
 					+ HORIZONTAL_CUP_ADJUSTMENT + lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
 			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
 					- mLeftCup.getBitmap().getHeight() + 5 - lever * (float)Math.sin(mDegree*Math.PI/180f));
-//			mLeftCup.setY(mLeftCup.getY() - direction
-//					* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
-//			mRightCup.setY(mRightCup.getY() + direction
-//					* VERTICAL_DISBALANCED_CUP_ADJUSTMENT / 44);
 			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
 					+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT - lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
 			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
