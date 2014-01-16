@@ -10,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.sutorei.canvasbalance.domain.WeightedObject;
@@ -34,7 +33,6 @@ public class LineupView extends View {
 
 	public LineupView(Context context, List<WeightedObject> objects) {
 		super(context);
-		Log.d("MSG", "Initializing lineup");
 		objectsToSort = objects;
 		line = BalanceBitmapContainer.getLineBitmap();
 
@@ -50,11 +48,8 @@ public class LineupView extends View {
 		mCirclePaint.setColor(line.getPixel(0, line.getHeight() / 2));
 
 		this.setOnTouchListener(new LineupOnTouchListener());
-		Log.d("MSG", "Initialized. Shuffling");
 		shuffle();
-		Log.d("MSG", "Shuffled. Scaling");
 		initCoordinatesAndScale();
-		Log.d("MSG", "Init finished. Proceeding");
 		initialized = true;
 
 	}
@@ -64,14 +59,8 @@ public class LineupView extends View {
 	}
 
 	private void initCoordinatesAndScale() {
-		if (line == null) {
-			Log.d("MSG", "ACHTUNG: LINE BITMAP NOT LOADED");
-		}
 		lineY = line.getHeight() / 2;
 		float padding = 5;
-		if (objectsToSort == null) {
-			Log.d("MSG", "ACHTUNG: OBJECTS NOT LOADED");
-		}
 		anchorStep = (line.getWidth() - padding * 2)
 				/ (objectsToSort.size() + 1);
 		float currentOffset = padding;
@@ -127,7 +116,6 @@ public class LineupView extends View {
 			this.mViewWidth = mandatoryWidth;
 			this.mViewHeight = Math.round(mandatoryWidth / proportion);
 		}
-		Log.d("MSG", "" + mViewWidth + " " + mViewHeight);
 	}
 
 	@Override
@@ -143,7 +131,6 @@ public class LineupView extends View {
 
 	public boolean check() {
 		boolean answer = true;
-		Log.d("MSG", "Answer: " + answer);
 		for (int i = 0; i < objectsToSort.size() - 1; ++i) {
 			if (objectsToSort.get(i).getWeight() > objectsToSort.get(i + 1)
 					.getWeight()) {
@@ -151,7 +138,6 @@ public class LineupView extends View {
 				break;
 			}
 		}
-		Log.d("MSG", "Answer: " + answer);
 		return answer;
 	}
 
@@ -236,9 +222,6 @@ public class LineupView extends View {
 							if (i == mDraggedObjectIndex) {
 								break;
 							}
-							Log.d("Coords", "" + eventX + "  "
-									+ (xAnchors.get(i) - anchorStep / 2) + " "
-									+ (xAnchors.get(i) + anchorStep / 2));
 							// swap coordinates
 							objectsToSort.get(i).setX(
 									xAnchors.get(mDraggedObjectIndex)
