@@ -32,10 +32,9 @@ public abstract class GameMode {
 
 	private List<BalanceView> mBalanceViews;
 	private List<EditText> mAnswerFields;
+	private ArrayList<RelativeLayout> mRelativeLayouts;
 	private ViewPager mBalancePager;
-
-	ArrayList<RelativeLayout> mRelativeLayouts;
-
+	
 	public GameMode(Context context, ViewGroup parentView, TaskData taskData) {
 		mTaskData = taskData;
 		mContext = context;
@@ -64,7 +63,6 @@ public abstract class GameMode {
 		mAnswerFields = new ArrayList<EditText>();
 
 		// init
-
 		RelativeLayout.LayoutParams containerLayoutParams = new RelativeLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		containerLayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -142,7 +140,7 @@ public abstract class GameMode {
 
 			mRelativeLayouts.add(relativeLayoutContainer);
 		}
-		mBalancePager.setAdapter(new CustomViewPagerAdapter(mRelativeLayouts));
+		mBalancePager.setAdapter(new CustomViewPagerAdapter(mRelativeLayouts, 0.8f));
 	}
 
 	public void inflate() {
@@ -223,7 +221,16 @@ public abstract class GameMode {
 
 	public abstract boolean check();
 
-	public abstract void restart();
+	public void restart() {
+		mParentView.removeAllViews();
+		
+		mBalanceViews.clear();
+		mBalancePager.removeAllViews();
+		mAnswerFields.clear();
+		
+		init();
+		inflate();
+	}
 
 	public abstract boolean isModeWithNumericAnswers();
 

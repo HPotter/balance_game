@@ -4,11 +4,11 @@ import java.text.ParseException;
 import java.util.Comparator;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.sutorei.canvasbalance.util.BalanceObjectBitmapCache;
+import com.sutorei.canvasbalance.util.BitmapCache;
 
 public class WeightedObject extends BalanceViewObject {
-	protected float weight;
-	protected float scalingRatio;
+	protected float weight = 0;
+	protected float scalingRatio = 1;
 
 	private static String KEY_BALANCE_OBJECT_IMAGE = "image";
 	private static String KEY_BALANCE_OBJECT_WEIGHT = "weight";
@@ -30,28 +30,25 @@ public class WeightedObject extends BalanceViewObject {
 	}
 
 	public WeightedObject() {
-		weight = 0f;
-		sprite = null;
-		x = 0;
-		y = 0;
-		scalingRatio = 1;
 	}
 
 	public WeightedObject(String imageLink, float weight) {
 		this();
-		
+
 		this.weight = weight;
-		sprite = BalanceObjectBitmapCache.getBitmap(imageLink);
+		bitmap = BitmapCache.getBitmap(imageLink);
 	}
 
-	// TODO Object.clone() ?
-	public WeightedObject copy() {
+	@Override
+	public WeightedObject clone() {
 		WeightedObject copy = new WeightedObject();
+
 		copy.x = this.x;
 		copy.y = this.y;
-		copy.sprite = this.sprite;
+		copy.bitmap = this.bitmap;
 		copy.weight = this.weight;
 		copy.scalingRatio = this.scalingRatio;
+
 		return copy;
 	}
 
@@ -68,33 +65,29 @@ public class WeightedObject extends BalanceViewObject {
 	}
 
 	public float getHeight() {
-		return sprite.getHeight() * scalingRatio;
+		return bitmap.getHeight() * scalingRatio;
 	}
 
 	public float getWidth() {
-		return sprite.getWidth() * scalingRatio;
+		return bitmap.getWidth() * scalingRatio;
 	}
 
+	// TODO rename
 	@Override
 	public boolean isTouchedWithoutOpacity(float touchX, float touchY) {
-		if (touchX - x >= 0 && touchX - x <= sprite.getWidth() * scalingRatio
-				&& touchY - y >= 0
-				&& touchY - y <= sprite.getHeight() * scalingRatio) {
-			return true;
-		}
-		return false;
+		return touchX - x >= 0 && touchX - x <= getWidth() && touchY - y >= 0
+				&& touchY - y <= getHeight();
 	}
 
 	@Override
 	public boolean isTouched(float touchX, float touchY) {
-		if (touchX - x >= 0 && touchX - x <= sprite.getWidth() * scalingRatio
-				&& touchY - y >= 0
-				&& touchY - y <= sprite.getHeight() * scalingRatio) {
-			int color = sprite.getPixel((int) Math.ceil(touchX - x),
+		if (isTouchedWithoutOpacity(touchX, touchY)) {
+			int color = bitmap.getPixel((int) Math.ceil(touchX - x),
 					(int) Math.ceil(touchY - y));
-			return !((color & 0xff000000) == 0x0);
+			return (color & 0xff000000) != 0x0;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 	public static class WeightComparator implements Comparator<WeightedObject> {
@@ -110,7 +103,12 @@ public class WeightedObject extends BalanceViewObject {
 
 		@Override
 		public int compare(WeightedObject lhs, WeightedObject rhs) {
-			return rhs.sprite.getHeight() - lhs.sprite.getHeight();
+			return rhs.bitmap.getHeight() - lhs.bitmap.getHeight(); // TODO
+																	// probably
+																	// a bug:
+																	// scalingRatio
+																	// isn't
+																	// used
 		}
 
 	}

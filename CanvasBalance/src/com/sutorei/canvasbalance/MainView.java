@@ -5,15 +5,14 @@ import java.text.ParseException;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.widget.RelativeLayout;
 
 import com.hexonxons.extension.AbstractKeyboard;
 import com.hexonxons.extension.ExtensionListener;
 import com.hexonxons.extension.ExtensionViewImpl;
 import com.sutorei.canvasbalance.domain.TaskData;
-import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
-import com.sutorei.canvasbalance.util.BalanceObjectBitmapCache;
+import com.sutorei.canvasbalance.util.BalanceBitmapCache;
+import com.sutorei.canvasbalance.util.BitmapCache;
 import com.sutorei.canvasbalance.util.FontContainer;
 import com.sutorei.canvasbalance.view.game.CheckoutBalanceMode;
 import com.sutorei.canvasbalance.view.game.EstablishBalanceMode;
@@ -34,11 +33,11 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 
 		setWillNotDraw(false);
 		
-		BalanceObjectBitmapCache.purge();
-		BalanceObjectBitmapCache.preloadAll(taskFolder);
+		BitmapCache.purge();
+		BitmapCache.preloadAll(taskFolder); // TODO: move to onPreload\load\etc
 		
-		BalanceBitmapContainer.loadBitmaps(extensionStyleFolder);
-		FontContainer.setTypeface(new File(extensionStyleFolder, "font.ttf"));
+		BalanceBitmapCache.loadBitmaps(extensionStyleFolder);
+		FontContainer.setTypeface(new File(extensionStyleFolder, "font.ttf")); // TODO: handle missing font exception
 
 		// TODO: fabric
 		mTaskData = TaskData.fromJsonFile(taskMarkup, taskFolder);
@@ -60,7 +59,6 @@ public class MainView extends RelativeLayout implements ExtensionViewImpl {
 		case FIND_MASS_USING_EQUATION_INTERACTIVE:
 			break;
 		case LINE_UP_OBJECTS:
-			Log.d("MSG", "Preparing layout");
 			mGameMode = new LineupMode(context, this, mTaskData);
 			break;
 		case FIND_THE_DIFFERENCE:

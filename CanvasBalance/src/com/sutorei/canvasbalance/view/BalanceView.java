@@ -18,7 +18,7 @@ import com.sutorei.canvasbalance.domain.BalanceData;
 import com.sutorei.canvasbalance.domain.BalanceState;
 import com.sutorei.canvasbalance.domain.BalanceViewObject;
 import com.sutorei.canvasbalance.domain.WeightedObject;
-import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
+import com.sutorei.canvasbalance.util.BalanceBitmapCache;
 
 @SuppressLint("ViewConstructor")
 public class BalanceView extends View {
@@ -115,7 +115,7 @@ public class BalanceView extends View {
 	private final int BASE_WIDTH, BASE_HEIGHT;
 
 	private final float HORIZONTAL_CUP_ADJUSTMENT = 61,
-			VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66;
+			VERTICAL_DISBALANCED_CUP_ADJUSTMENT = 66; // TODO value is not used, is it bug?
 	private int mViewWidth, mViewHeight;
 
 	private BalanceState checkBalance() {
@@ -132,20 +132,18 @@ public class BalanceView extends View {
 	public BalanceView(Context context, BalanceData balanceData) {
 		super(context);
 		taskLoaded = false;
-		mLeftCup = new BalanceViewObject(
-				BalanceBitmapContainer.getLeftCupBitmap());
+		mLeftCup = new BalanceViewObject(BalanceBitmapCache.getLeftCupBitmap());
 		mRightCup = new BalanceViewObject(
-				BalanceBitmapContainer.getRightCupBitmap());
-		mBeam = new BalanceViewObject(BalanceBitmapContainer.getBeamBitmap());
-		mSupport = new BalanceViewObject(
-				BalanceBitmapContainer.getSupportBitmap());
+				BalanceBitmapCache.getRightCupBitmap());
+		mBeam = new BalanceViewObject(BalanceBitmapCache.getBeamBitmap());
+		mSupport = new BalanceViewObject(BalanceBitmapCache.getSupportBitmap());
 
 		positivePopupVisible = negativePopupVisible = false;
 
 		mPositivePopup = new BalanceViewObject(
-				BalanceBitmapContainer.getFacePositiveBitmap());
+				BalanceBitmapCache.getFacePositiveBitmap());
 		mNegativePopup = new BalanceViewObject(
-				BalanceBitmapContainer.getFaceNegativeBitmap());
+				BalanceBitmapCache.getFaceNegativeBitmap());
 
 		BASE_WIDTH = mLeftCup.getBitmap().getWidth() / 2
 				+ mBeam.getBitmap().getWidth()
@@ -168,7 +166,7 @@ public class BalanceView extends View {
 
 		this.setOnTouchListener(new BalanceOnTouchListener());
 
-		loadAndStartTask(balanceData);
+		loadAndStartTask(balanceData.clone());
 	}
 
 	public void loadAndStartTask(BalanceData balanceData) {
@@ -284,7 +282,7 @@ public class BalanceView extends View {
 				new WeightedObject.HeightComparator());
 		switch (mCurrentState) {
 		case EQUAL:
-			mBeamBent = mBeam.copy();
+			mBeamBent = mBeam.clone();
 			mDegree = 0;
 			mRotationAnimation
 					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
@@ -293,7 +291,7 @@ public class BalanceView extends View {
 			mRotationAnimation.postRotate(-14,
 					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
 							.getHeight() / 2);
-			mBeamBent = mBeam.copy();
+			mBeamBent = mBeam.clone();
 			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
 					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
 			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
@@ -306,7 +304,7 @@ public class BalanceView extends View {
 			mRotationAnimation.postRotate(+14,
 					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
 							.getHeight() / 2);
-			mBeamBent = mBeam.copy();
+			mBeamBent = mBeam.clone();
 			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
 					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
 			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
@@ -316,15 +314,20 @@ public class BalanceView extends View {
 			mDegree = 14;
 			break;
 		}
-		float lever = mBeam.getBitmap().getWidth()/2 - HORIZONTAL_CUP_ADJUSTMENT;
+		float lever = mBeam.getBitmap().getWidth() / 2
+				- HORIZONTAL_CUP_ADJUSTMENT;
 		mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
-				+ HORIZONTAL_CUP_ADJUSTMENT + lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+				+ HORIZONTAL_CUP_ADJUSTMENT + lever
+				* (1 - (float) Math.cos(mDegree * Math.PI / 180f)));
 		mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-				- mLeftCup.getBitmap().getHeight() + 5 - lever * (float)Math.sin(mDegree*Math.PI/180f));
+				- mLeftCup.getBitmap().getHeight() + 5 - lever
+				* (float) Math.sin(mDegree * Math.PI / 180f));
 		mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
-				+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT - lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+				+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT
+				- lever * (1 - (float) Math.cos(mDegree * Math.PI / 180f)));
 		mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-				- mRightCup.getBitmap().getHeight() + 5 + lever * (float)Math.sin(mDegree*Math.PI/180f));
+				- mRightCup.getBitmap().getHeight() + 5 + lever
+				* (float) Math.sin(mDegree * Math.PI / 180f));
 		degreeClause = Math.round(mDegree);
 		direction = 0;
 	}
@@ -377,9 +380,9 @@ public class BalanceView extends View {
 		leftCupObjectOffset = 0;
 		rightCupObjectOffset = 0;
 		float xOffset = 5;
-		float yOffset = Math.round(BASE_HEIGHT * 19 / 20);		
+		float yOffset = Math.round(BASE_HEIGHT * 19 / 20);
 		objectCoordinatesAdjustment(xOffset, yOffset, canvas);
-		
+
 		canvas.drawBitmap(mLeftCup.getBitmap(), mLeftCup.getX(),
 				mLeftCup.getY(), mAntiAliasingPaint);
 		canvas.drawBitmap(mRightCup.getBitmap(), mRightCup.getX(),
@@ -405,20 +408,25 @@ public class BalanceView extends View {
 
 	private void balanceCoordinatesAdjustment() {
 		float startingSignum = Math.signum(mDegree - degreeClause);
-		float lever = mBeam.getBitmap().getWidth()/2 - HORIZONTAL_CUP_ADJUSTMENT;
+		float lever = mBeam.getBitmap().getWidth() / 2
+				- HORIZONTAL_CUP_ADJUSTMENT;
 		if ((mDegree - degreeClause) * startingSignum >= 1e-3) {
 			mDegree += (float) direction * 32 / 100;
 			if ((mDegree - degreeClause) * startingSignum < 1e-3) {
 				mDegree = degreeClause;
 			}
 			mLeftCup.setX(mBeam.getX() - mLeftCup.getBitmap().getWidth() / 2
-					+ HORIZONTAL_CUP_ADJUSTMENT + lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+					+ HORIZONTAL_CUP_ADJUSTMENT + lever
+					* (1 - (float) Math.cos(mDegree * Math.PI / 180f)));
 			mLeftCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mLeftCup.getBitmap().getHeight() + 5 - lever * (float)Math.sin(mDegree*Math.PI/180f));
+					- mLeftCup.getBitmap().getHeight() + 5 - lever
+					* (float) Math.sin(mDegree * Math.PI / 180f));
 			mRightCup.setX(mBeam.getX() - mRightCup.getBitmap().getWidth() / 2
-					+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT - lever * (1 - (float)Math.cos(mDegree*Math.PI/180f)));
+					+ mBeam.getBitmap().getWidth() - HORIZONTAL_CUP_ADJUSTMENT
+					- lever * (1 - (float) Math.cos(mDegree * Math.PI / 180f)));
 			mRightCup.setY(mSupport.getY() + mBeam.getBitmap().getHeight() / 2
-					- mRightCup.getBitmap().getHeight() + 5 + lever * (float)Math.sin(mDegree*Math.PI/180f));
+					- mRightCup.getBitmap().getHeight() + 5 + lever
+					* (float) Math.sin(mDegree * Math.PI / 180f));
 			mRotationAnimation.reset();
 			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
 					/ 2 - mBeam.getBitmap().getWidth() / 2);
@@ -441,8 +449,9 @@ public class BalanceView extends View {
 			mAnimationOngoing = false;
 		}
 	}
-	
-	private void objectCoordinatesAdjustment(float xOffset, float yOffset, Canvas canvas){
+
+	private void objectCoordinatesAdjustment(float xOffset, float yOffset,
+			Canvas canvas) {
 		for (WeightedObject wo : mAvaliableObjects) {
 			wo.setX(xOffset);
 			wo.setY(yOffset - Math.round(wo.getHeight()));
@@ -527,7 +536,7 @@ public class BalanceView extends View {
 						if (wo.isTouchedWithoutOpacity(eventX, eventY)) {
 							getParent()
 									.requestDisallowInterceptTouchEvent(true);
-							mDraggedObject = (WeightedObject) wo.copy();
+							mDraggedObject = (WeightedObject) wo.clone();
 							mDraggedObjectIndex = i;
 							mDraggedObjectOrigin = 0;
 							mDragOngoing = true;
@@ -544,7 +553,7 @@ public class BalanceView extends View {
 							getParent()
 									.requestDisallowInterceptTouchEvent(true);
 							mDraggedObject = (WeightedObject) mObjectsOnLeft
-									.get(i).copy();
+									.get(i).clone();
 							mDraggedObjectIndex = i;
 							mDraggedObjectOrigin = -1;
 							mDragOngoing = true;
@@ -556,7 +565,7 @@ public class BalanceView extends View {
 						if (mObjectsOnRight.get(i).isTouched(eventX, eventY)) {
 							getParent()
 									.requestDisallowInterceptTouchEvent(true);
-							mDraggedObject = mObjectsOnRight.get(i).copy();
+							mDraggedObject = mObjectsOnRight.get(i).clone();
 							mDraggedObjectIndex = i;
 							mDraggedObjectOrigin = 1;
 							mDragOngoing = true;
@@ -679,7 +688,7 @@ public class BalanceView extends View {
 	}
 
 	public static Bitmap generatePreview(BalanceData balanceData) {
-		// TODO
+		// TODO TODO!
 		return null;
 	}
 }

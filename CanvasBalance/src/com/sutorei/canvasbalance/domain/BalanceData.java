@@ -7,11 +7,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class BalanceData {
-	private List<WeightedObject> objectsOnLeft, objectsOnRight,
-			avaliableObjects;
-	private boolean interactive;
+public class BalanceData implements Cloneable {
+	private List<WeightedObject> objectsOnLeft;
+	private List<WeightedObject> objectsOnRight;
+	private List<WeightedObject> avaliableObjects;
 	private BalanceState balanceState;
+	private boolean interactive;
 	private boolean fixed;
 
 	private static String KEY_BALANCE_STATE = "state";
@@ -21,56 +22,53 @@ public class BalanceData {
 
 	protected static BalanceData fromJsonNode(JsonNode rootNode,
 			String taskFolder) throws ParseException {
-
 		BalanceData result = new BalanceData();
+
+		// balance state
 		result.setBalanceState(BalanceState.fromInt(rootNode.path(
 				KEY_BALANCE_STATE).asInt(0)));
 
+		// left objects
+		ArrayList<WeightedObject> leftObjects = new ArrayList<WeightedObject>();
 		if (rootNode.has(KEY_BALANCE_LEFT_OBJECTS)) {
-			JsonNode weightedObjectListNode = rootNode
+			JsonNode leftObjectListNode = rootNode
 					.path(KEY_BALANCE_LEFT_OBJECTS);
-			ArrayList<WeightedObject> weightedObjects = new ArrayList<WeightedObject>(
-					weightedObjectListNode.size());
+			leftObjects.ensureCapacity(leftObjectListNode.size());
 
-			for (JsonNode weightedObjectNode : weightedObjectListNode) {
-				weightedObjects.add(WeightedObject.fromJsonNode(
+			for (JsonNode weightedObjectNode : leftObjectListNode) {
+				leftObjects.add(WeightedObject.fromJsonNode(weightedObjectNode,
+						taskFolder + File.separator));
+			}
+		}
+		result.setObjectsOnLeft(leftObjects);
+
+		// right objects
+		ArrayList<WeightedObject> rightObjects = new ArrayList<WeightedObject>();
+		if (rootNode.has(KEY_BALANCE_RIGHT_OBJECTS)) {
+			JsonNode rightObjectListNode = rootNode
+					.path(KEY_BALANCE_RIGHT_OBJECTS);
+			rightObjects.ensureCapacity(rightObjectListNode.size());
+
+			for (JsonNode weightedObjectNode : rightObjectListNode) {
+				rightObjects.add(WeightedObject.fromJsonNode(
 						weightedObjectNode, taskFolder + File.separator));
 			}
-
-			result.setObjectsOnLeft(weightedObjects);
-		} else {
-			result.setObjectsOnLeft(new ArrayList<WeightedObject>());
 		}
+		result.setObjectsOnRight(rightObjects);
+
+		// available objects
+		ArrayList<WeightedObject> availableObjects = new ArrayList<WeightedObject>();
 		if (rootNode.has(KEY_BALANCE_AVAILABLE_OBJECTS)) {
 			JsonNode weightedObjectListNode = rootNode
 					.path(KEY_BALANCE_AVAILABLE_OBJECTS);
-			ArrayList<WeightedObject> weightedObjects = new ArrayList<WeightedObject>(
-					weightedObjectListNode.size());
+			availableObjects.ensureCapacity(weightedObjectListNode.size());
 
 			for (JsonNode weightedObjectNode : weightedObjectListNode) {
-				weightedObjects.add(WeightedObject.fromJsonNode(
+				availableObjects.add(WeightedObject.fromJsonNode(
 						weightedObjectNode, taskFolder + File.separator));
 			}
-
-			result.setAvaliableObjects(weightedObjects);
-		} else {
-			result.setAvaliableObjects(new ArrayList<WeightedObject>());
 		}
-		if (rootNode.has(KEY_BALANCE_RIGHT_OBJECTS)) {
-			JsonNode weightedObjectListNode = rootNode
-					.path(KEY_BALANCE_RIGHT_OBJECTS);
-			ArrayList<WeightedObject> weightedObjects = new ArrayList<WeightedObject>(
-					weightedObjectListNode.size());
-
-			for (JsonNode weightedObjectNode : weightedObjectListNode) {
-				weightedObjects.add(WeightedObject.fromJsonNode(
-						weightedObjectNode, taskFolder + File.separator));
-			}
-
-			result.setObjectsOnRight(weightedObjects);
-		} else {
-			result.setObjectsOnRight(new ArrayList<WeightedObject>());
-		}
+		result.setAvaliableObjects(availableObjects);
 
 		return result;
 	}
@@ -121,5 +119,19 @@ public class BalanceData {
 
 	public boolean isInteractive() {
 		return interactive;
+	}
+	
+	@Override
+	public BalanceData clone() {
+		BalanceData result = new BalanceData();
+		
+		result.objectsOnLeft = new ArrayList<WeightedObject>(this.objectsOnLeft);
+		result.objectsOnRight = new ArrayList<WeightedObject>(this.objectsOnRight);
+		result.avaliableObjects = new ArrayList<WeightedObject>(this.avaliableObjects);
+		result.balanceState = this.balanceState;
+		result.interactive = this.interactive;
+		result.fixed = this.fixed;
+		
+		return result;
 	}
 }

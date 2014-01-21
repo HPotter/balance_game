@@ -13,7 +13,7 @@ import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
 import com.sutorei.canvasbalance.domain.WeightedObject;
-import com.sutorei.canvasbalance.util.BalanceBitmapContainer;
+import com.sutorei.canvasbalance.util.BalanceBitmapCache;
 
 @SuppressLint("ViewConstructor")
 public class LineupView extends View {
@@ -34,7 +34,7 @@ public class LineupView extends View {
 	public LineupView(Context context, List<WeightedObject> objects) {
 		super(context);
 		objectsToSort = objects;
-		line = BalanceBitmapContainer.getLineBitmap();
+		line = BalanceBitmapCache.getLineBitmap();
 
 		xAnchors = new ArrayList<Float>();
 		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -193,7 +193,7 @@ public class LineupView extends View {
 				for (int i = 0; i < objectsToSort.size(); ++i) {
 					WeightedObject wo = objectsToSort.get(i);
 					if (wo.isTouchedWithoutOpacity(eventX, eventY)) {
-						mDraggedObject = (WeightedObject) wo.copy();
+						mDraggedObject = (WeightedObject) wo.clone();
 						mDraggedObjectIndex = i;
 						mDragOngoing = true;
 						invalidate();

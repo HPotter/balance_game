@@ -18,11 +18,6 @@ public class FindMassMode extends GameMode {
 	}
 
 	@Override
-	public void restart() {
-		inflate();
-	}
-
-	@Override
 	public boolean isModeWithNumericAnswers() {
 		return true;
 	}

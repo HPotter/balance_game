@@ -7,16 +7,17 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 public class CustomViewPagerAdapter extends PagerAdapter {
+	private List<? extends View> mPages;
+	private final float mPageWidth;
 
-	List<? extends View> pages;
-
-	public CustomViewPagerAdapter(List<? extends View> pages) {
-		this.pages = pages;
+	public CustomViewPagerAdapter(List<? extends View> pages, float pageWidth) {
+		this.mPages = pages;
+		this.mPageWidth = pageWidth;
 	}
 
 	@Override
 	public Object instantiateItem(View collection, int position) {
-		View v = pages.get(position);
+		View v = mPages.get(position);
 		((ViewPager) collection).addView(v, 0);
 		return v;
 	}
@@ -28,9 +29,10 @@ public class CustomViewPagerAdapter extends PagerAdapter {
 
 	@Override
 	public int getCount() {
-		return pages.size();
+		return mPages.size();
 	}
 
+	// TODO fix argument names
 	@Override
 	public boolean isViewFromObject(View arg0, Object arg1) {
 		return arg0.equals(arg1);
@@ -38,6 +40,6 @@ public class CustomViewPagerAdapter extends PagerAdapter {
 
 	@Override
 	public float getPageWidth(int position) {
-		return 0.8f;
+		return mPageWidth;
 	}
 }

@@ -3,28 +3,22 @@ package com.sutorei.canvasbalance.util;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.regex.Pattern;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
-public class BalanceObjectBitmapCache {
+public class BitmapCache {
 	private static HashMap<String, Bitmap> cache = new HashMap<String, Bitmap>();
 
-	static final String[] IMAGE_EXTENSIONS = new String[] { "gif", "png",
-			"bmp", "jpg", "jpeg" };
+	private static final Pattern IMAGE_EXTENSION_PATTERN = Pattern.compile(
+			".*(gif|png|bmp|jpg|jpeg)", Pattern.CASE_INSENSITIVE);
 
-	static final FilenameFilter IMAGE_FILTER = new FilenameFilter() {
+	private static final FilenameFilter IMAGE_FILTER = new FilenameFilter() {
 
 		@Override
 		public boolean accept(final File dir, final String name) {
-			for (final String ext : IMAGE_EXTENSIONS) {
-				if (name.toLowerCase(Locale.ENGLISH).endsWith("." + ext)) {
-					return true;
-				}
-			}
-			return false;
+			return IMAGE_EXTENSION_PATTERN.matcher(name).matches();
 		}
 	};
 
@@ -32,23 +26,22 @@ public class BalanceObjectBitmapCache {
 		filename = normalizePath(filename);
 
 		if (!cache.containsKey(filename)) {
-			Log.d(BalanceObjectBitmapCache.class.toString(), "hot preload");
 			preload(filename);
 		}
 
 		return cache.get(filename);
 	}
 
-	public static void preloadAll(File taskFolder) {
-		Log.d("preloadAll", "");
-		for (File file : taskFolder.listFiles(IMAGE_FILTER)) {
+	public static void preloadAll(File folder) {
+		for (File file : folder.listFiles(IMAGE_FILTER)) {
 			preload(file.getAbsolutePath());
 		}
 	}
 
 	public static void purge() {
 		for (Bitmap bitmap : cache.values()) {
-			bitmap.recycle();
+			bitmap.recycle(); // TODO be careful with recycle(), bitmap may be
+								// in use
 		}
 
 		cache.clear();
@@ -57,7 +50,6 @@ public class BalanceObjectBitmapCache {
 	private static void preload(String filename) {
 		filename = normalizePath(filename);
 
-		Log.d(BalanceObjectBitmapCache.class.toString(), "preload " + filename);
 		cache.put(filename, BitmapFactory.decodeFile(filename));
 	}
 

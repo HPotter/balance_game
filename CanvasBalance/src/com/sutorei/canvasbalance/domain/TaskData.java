@@ -20,7 +20,7 @@ public class TaskData {
 	private List<String> balanceText;
 	private List<Integer> correctAnswers;
 	private List<BalanceData> balanceData;
-	private List<WeightedObject> questions;
+	private List<WeightedObject> questions; // TODO RENAME
 
 	private static String KEY_TASK_TYPE = "task_type";
 	private static String KEY_TASK_TEXT = "task_text";
@@ -62,6 +62,7 @@ public class TaskData {
 		result.setTaskType(TaskType.valueOf(rootNode.path(KEY_TASK_TYPE)
 				.asText()));
 		result.setTaskText(rootNode.path(KEY_TASK_TEXT).asText());
+		
 		if (rootNode.has(KEY_BALANCE_DATA)) {
 			JsonNode balanceDataListNode = rootNode.path(KEY_BALANCE_DATA);
 			ArrayList<BalanceData> balanceDatas = new ArrayList<BalanceData>(
@@ -78,12 +79,14 @@ public class TaskData {
 				} else {
 					correctAnswers.add(null);
 				}
+				
 				if (balanceDataNode.has(KEY_BALANCE_TEXT)) {
 					balanceText.add(balanceDataNode.path(KEY_BALANCE_TEXT)
 							.asText());
 				} else {
 					balanceText.add("");
 				}
+				
 				balanceDatas.add(BalanceData.fromJsonNode(balanceDataNode,
 						taskFolder + File.separator));
 			}
