@@ -2,29 +2,22 @@ package com.sutorei.canvasbalance.domain;
 
 import android.graphics.Bitmap;
 
-public class BalanceViewObject implements Cloneable {
+public class BalanceViewObject {
 	protected volatile float x = 0;
 	protected volatile float y = 0;
 	protected Bitmap bitmap = null;
 
 	public BalanceViewObject() {
 	}
-
-	@Override
-	public BalanceViewObject clone() {
-		BalanceViewObject result = new BalanceViewObject();
-
-		result.x = this.x;
-		result.y = this.y;
-		result.bitmap = this.bitmap;
-
-		return result;
+	
+	public BalanceViewObject(BalanceViewObject other) {
+		this.x = other.x;
+		this.y = other.y;
+		this.bitmap = other.bitmap;
 	}
 
 	public BalanceViewObject(Bitmap bitmap) {
 		this.bitmap = bitmap;
-		x = 0;
-		y = 0;
 	}
 
 	public Bitmap getBitmap() {

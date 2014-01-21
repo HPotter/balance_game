@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class BalanceData implements Cloneable {
+public class BalanceData {
 	private List<WeightedObject> objectsOnLeft;
 	private List<WeightedObject> objectsOnRight;
 	private List<WeightedObject> avaliableObjects;
@@ -73,6 +73,20 @@ public class BalanceData implements Cloneable {
 		return result;
 	}
 
+	public BalanceData() {
+	}
+
+	public BalanceData(BalanceData other) {
+		this.objectsOnLeft = new ArrayList<WeightedObject>(other.objectsOnLeft);
+		this.objectsOnRight = new ArrayList<WeightedObject>(
+				other.objectsOnRight);
+		this.avaliableObjects = new ArrayList<WeightedObject>(
+				other.avaliableObjects);
+		this.balanceState = other.balanceState;
+		this.interactive = other.interactive;
+		this.fixed = other.fixed;
+	}
+
 	public boolean isFixed() {
 		return fixed;
 	}
@@ -119,19 +133,5 @@ public class BalanceData implements Cloneable {
 
 	public boolean isInteractive() {
 		return interactive;
-	}
-	
-	@Override
-	public BalanceData clone() {
-		BalanceData result = new BalanceData();
-		
-		result.objectsOnLeft = new ArrayList<WeightedObject>(this.objectsOnLeft);
-		result.objectsOnRight = new ArrayList<WeightedObject>(this.objectsOnRight);
-		result.avaliableObjects = new ArrayList<WeightedObject>(this.avaliableObjects);
-		result.balanceState = this.balanceState;
-		result.interactive = this.interactive;
-		result.fixed = this.fixed;
-		
-		return result;
 	}
 }

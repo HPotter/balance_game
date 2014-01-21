@@ -31,27 +31,19 @@ public class WeightedObject extends BalanceViewObject {
 
 	public WeightedObject() {
 	}
+	
+	public WeightedObject(WeightedObject other) {
+		super(other);
+		
+		this.weight = other.weight;
+		this.scalingRatio = other.scalingRatio;
+	}
 
 	public WeightedObject(String imageLink, float weight) {
-		this();
-
 		this.weight = weight;
 		bitmap = BitmapCache.getBitmap(imageLink);
 	}
-
-	@Override
-	public WeightedObject clone() {
-		WeightedObject copy = new WeightedObject();
-
-		copy.x = this.x;
-		copy.y = this.y;
-		copy.bitmap = this.bitmap;
-		copy.weight = this.weight;
-		copy.scalingRatio = this.scalingRatio;
-
-		return copy;
-	}
-
+	
 	public float getWeight() {
 		return weight;
 	}

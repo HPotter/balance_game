@@ -166,7 +166,7 @@ public class BalanceView extends View {
 
 		this.setOnTouchListener(new BalanceOnTouchListener());
 
-		loadAndStartTask(balanceData.clone());
+		loadAndStartTask(new BalanceData(balanceData));
 	}
 
 	public void loadAndStartTask(BalanceData balanceData) {
@@ -282,7 +282,7 @@ public class BalanceView extends View {
 				new WeightedObject.HeightComparator());
 		switch (mCurrentState) {
 		case EQUAL:
-			mBeamBent = mBeam.clone();
+			mBeamBent = new BalanceViewObject(mBeam);
 			mDegree = 0;
 			mRotationAnimation
 					.postTranslate(mBeamBent.getX(), mBeamBent.getY());
@@ -291,7 +291,7 @@ public class BalanceView extends View {
 			mRotationAnimation.postRotate(-14,
 					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
 							.getHeight() / 2);
-			mBeamBent = mBeam.clone();
+			mBeamBent = new BalanceViewObject(mBeam);
 			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
 					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
 			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
@@ -304,7 +304,7 @@ public class BalanceView extends View {
 			mRotationAnimation.postRotate(+14,
 					mBeam.getBitmap().getWidth() / 2, mBeam.getBitmap()
 							.getHeight() / 2);
-			mBeamBent = mBeam.clone();
+			mBeamBent = new BalanceViewObject(mBeam);
 			mBeamBent.setX(mSupport.getX() + mSupport.getBitmap().getWidth()
 					/ 2 - mBeamBent.getBitmap().getWidth() / 2);
 			mBeamBent.setY(mSupport.getY() - mBeamBent.getBitmap().getHeight()
@@ -536,7 +536,7 @@ public class BalanceView extends View {
 						if (wo.isTouchedWithoutOpacity(eventX, eventY)) {
 							getParent()
 									.requestDisallowInterceptTouchEvent(true);
-							mDraggedObject = (WeightedObject) wo.clone();
+							mDraggedObject = new WeightedObject(wo);
 							mDraggedObjectIndex = i;
 							mDraggedObjectOrigin = 0;
 							mDragOngoing = true;
@@ -552,8 +552,8 @@ public class BalanceView extends View {
 						if (mObjectsOnLeft.get(i).isTouched(eventX, eventY)) {
 							getParent()
 									.requestDisallowInterceptTouchEvent(true);
-							mDraggedObject = (WeightedObject) mObjectsOnLeft
-									.get(i).clone();
+							mDraggedObject = new WeightedObject (mObjectsOnLeft
+									.get(i));
 							mDraggedObjectIndex = i;
 							mDraggedObjectOrigin = -1;
 							mDragOngoing = true;
@@ -565,7 +565,7 @@ public class BalanceView extends View {
 						if (mObjectsOnRight.get(i).isTouched(eventX, eventY)) {
 							getParent()
 									.requestDisallowInterceptTouchEvent(true);
-							mDraggedObject = mObjectsOnRight.get(i).clone();
+							mDraggedObject = new WeightedObject(mObjectsOnRight.get(i));
 							mDraggedObjectIndex = i;
 							mDraggedObjectOrigin = 1;
 							mDragOngoing = true;

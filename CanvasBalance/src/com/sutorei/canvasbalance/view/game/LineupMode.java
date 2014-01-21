@@ -1,6 +1,7 @@
 package com.sutorei.canvasbalance.view.game;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.View;
@@ -24,7 +25,13 @@ public class LineupMode extends GameMode {
 	public void init() {
 		super.init();
 		
-		mLineupView = new LineupView(getContext(), new ArrayList<WeightedObject>(getTaskData().getQuestions()));
+		// deep copy
+		List<WeightedObject> lineObjects = new ArrayList<WeightedObject>(getTaskData().getQuestions().size());
+		for(WeightedObject weightedObject : getTaskData().getQuestions()) {
+			lineObjects.add(new WeightedObject(weightedObject));
+		}
+		
+		mLineupView = new LineupView(getContext(), lineObjects);
 		mLineupView.setId(generateViewId());
 	}
 
@@ -53,7 +60,6 @@ public class LineupMode extends GameMode {
 
 	@Override
 	public void restart() {
-		this.mLineupView = null; // TODO: fix object auto-resize on restart
 		super.restart();
 	}
 

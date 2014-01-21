@@ -193,7 +193,7 @@ public class LineupView extends View {
 				for (int i = 0; i < objectsToSort.size(); ++i) {
 					WeightedObject wo = objectsToSort.get(i);
 					if (wo.isTouchedWithoutOpacity(eventX, eventY)) {
-						mDraggedObject = (WeightedObject) wo.clone();
+						mDraggedObject = new WeightedObject(wo);
 						mDraggedObjectIndex = i;
 						mDragOngoing = true;
 						invalidate();
