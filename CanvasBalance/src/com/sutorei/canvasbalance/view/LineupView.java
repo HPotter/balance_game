@@ -17,26 +17,26 @@ import com.sutorei.canvasbalance.util.BalanceBitmapCache;
 
 @SuppressLint("ViewConstructor")
 public class LineupView extends View {
-	private Bitmap line;
+	private Bitmap mLine;
 	private WeightedObject mDraggedObject = null;
-	private List<WeightedObject> objectsToSort;
-	private boolean initialized = false, mDragOngoing = false;
-	private List<Float> xAnchors;
-	private float lineY, totalScaleRatio, anchorStep;
-	private Paint mAntiAliasingPaint, mAlphaPaint, mCirclePaint;
+	private List<WeightedObject> mObjectsToSort;
+	private boolean mInitialized = false, mDragOngoing = false;
+	private List<Float> mAnchors;
+	private float lineY, mTotalScaleRatio, mAnchorStep;
+	private Paint mAntiAliasingPaint, mAlphaPaint;
 
 	private int mViewWidth, mViewHeight;
 
 	public List<WeightedObject> getObjectsToSort() {
-		return objectsToSort;
+		return mObjectsToSort;
 	}
 
 	public LineupView(Context context, List<WeightedObject> objects) {
 		super(context);
-		objectsToSort = objects;
-		line = BalanceBitmapCache.getLineBitmap();
+		mObjectsToSort = objects;
+		mLine = BalanceBitmapCache.getLineBitmap();
 
-		xAnchors = new ArrayList<Float>();
+		mAnchors = new ArrayList<Float>();
 		mAntiAliasingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mAntiAliasingPaint.setFilterBitmap(true);
 		mAntiAliasingPaint.setDither(true);
@@ -44,43 +44,40 @@ public class LineupView extends View {
 		mAlphaPaint = new Paint();
 		mAlphaPaint.setAlpha(100);
 
-		mCirclePaint = new Paint();
-		mCirclePaint.setColor(line.getPixel(0, line.getHeight() / 2));
-
 		this.setOnTouchListener(new LineupOnTouchListener());
 		shuffle();
 		initCoordinatesAndScale();
-		initialized = true;
+		mInitialized = true;
 
 	}
 
 	private void shuffle() {
-		Collections.shuffle(objectsToSort);
+		Collections.shuffle(mObjectsToSort);
 	}
 
 	private void initCoordinatesAndScale() {
-		lineY = line.getHeight() / 2;
+		lineY = mLine.getHeight() / 2;
 		float padding = 5;
-		anchorStep = (line.getWidth() - padding * 2)
-				/ (objectsToSort.size() + 1);
+		mAnchorStep = (mLine.getWidth() - padding * 2)
+				/ (mObjectsToSort.size() + 1);
 		float currentOffset = padding;
-		for (WeightedObject wo : objectsToSort) {
-			float scaleHorizontal = (float) (anchorStep - padding * 2)
+		for (WeightedObject wo : mObjectsToSort) {
+			float scaleHorizontal = (float) (mAnchorStep - padding * 2)
 					/ wo.getWidth();
-			float scaleVertical = (float) (line.getHeight()) / wo.getHeight();
+			float scaleVertical = (float) (mLine.getHeight()) / wo.getHeight();
 			wo.setScalingRatio(Math.min(1,
 					Math.min(scaleHorizontal, scaleVertical)));
-			wo.setX(currentOffset + anchorStep / 2 - wo.getWidth() / 2);
-			xAnchors.add(currentOffset + anchorStep / 2);
+			wo.setX(currentOffset + mAnchorStep / 2 - wo.getWidth() / 2);
+			mAnchors.add(currentOffset + mAnchorStep / 2);
 			wo.setY(lineY - wo.getHeight() / 2);
-			currentOffset += padding * 2 + anchorStep;
+			currentOffset += padding * 2 + mAnchorStep;
 		}
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		int desiredWidth = line.getWidth();
-		int desiredHeight = line.getHeight();
+		int desiredWidth = mLine.getWidth();
+		int desiredHeight = mLine.getHeight();
 		float proportion = (float) desiredWidth / desiredHeight;
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
@@ -131,8 +128,8 @@ public class LineupView extends View {
 
 	public boolean check() {
 		boolean answer = true;
-		for (int i = 0; i < objectsToSort.size() - 1; ++i) {
-			if (objectsToSort.get(i).getWeight() > objectsToSort.get(i + 1)
+		for (int i = 0; i < mObjectsToSort.size() - 1; ++i) {
+			if (mObjectsToSort.get(i).getWeight() > mObjectsToSort.get(i + 1)
 					.getWeight()) {
 				answer = false;
 				break;
@@ -145,25 +142,17 @@ public class LineupView extends View {
 
 	@Override
 	public void onDraw(Canvas canvas) {
-		if (!initialized) {
+		if (!mInitialized) {
 			return;
 		}
-		float scaleWidth = mViewWidth / (float) line.getWidth();
-		float scaleHeight = mViewHeight / (float) line.getHeight();
-		totalScaleRatio = Math.min(scaleWidth, scaleHeight);
+		float scaleWidth = mViewWidth / (float) mLine.getWidth();
+		float scaleHeight = mViewHeight / (float) mLine.getHeight();
+		mTotalScaleRatio = Math.min(scaleWidth, scaleHeight);
 		canvas.save();
-		canvas.scale(totalScaleRatio, totalScaleRatio);
+		canvas.scale(mTotalScaleRatio, mTotalScaleRatio);
 		// draw the line
-		canvas.drawBitmap(line, 0, 0, mAntiAliasingPaint);
-		for (float centerX : xAnchors) {
-			mCirclePaint.setColor(Color.GREEN);
-			canvas.drawCircle(centerX, lineY, line.getHeight() / 4,
-					mCirclePaint);
-			mCirclePaint.setColor(Color.WHITE);
-			canvas.drawCircle(centerX, lineY, line.getHeight() / 5,
-					mCirclePaint);
-		}
-		for (WeightedObject wo : objectsToSort) {
+		canvas.drawBitmap(mLine, 0, 0, mAntiAliasingPaint);
+		for (WeightedObject wo : mObjectsToSort) {
 			destRect.set(wo.getX(), wo.getY(), wo.getX() + wo.getWidth(),
 					wo.getY() + wo.getHeight());
 			canvas.drawBitmap(wo.getBitmap(), null, destRect,
@@ -185,13 +174,13 @@ public class LineupView extends View {
 		
 		@Override
 		public boolean onTouch(View view, MotionEvent event) {
-			int eventX = (int) (event.getX() / totalScaleRatio);
-			int eventY = (int) (event.getY() / totalScaleRatio);
+			int eventX = (int) (event.getX() / mTotalScaleRatio);
+			int eventY = (int) (event.getY() / mTotalScaleRatio);
 			boolean eventHandled = false;
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-				for (int i = 0; i < objectsToSort.size(); ++i) {
-					WeightedObject wo = objectsToSort.get(i);
+				for (int i = 0; i < mObjectsToSort.size(); ++i) {
+					WeightedObject wo = mObjectsToSort.get(i);
 					if (wo.isTouchedWithoutOpacity(eventX, eventY)) {
 						mDraggedObject = new WeightedObject(wo);
 						mDraggedObjectIndex = i;
@@ -204,34 +193,34 @@ public class LineupView extends View {
 				break;
 			case MotionEvent.ACTION_MOVE:
 				if (mDragOngoing) {
-					if (eventX + mDraggedObject.getWidth() / 2 <= line
+					if (eventX + mDraggedObject.getWidth() / 2 <= mLine
 							.getWidth()
 							&& eventX - mDraggedObject.getWidth() / 2 >= 0) {
 						mDraggedObject.setX((int) Math.round(eventX
 								- mDraggedObject.getWidth() / 2));
 					}
-					if (eventY + mDraggedObject.getHeight() / 2 <= line
+					if (eventY + mDraggedObject.getHeight() / 2 <= mLine
 							.getHeight()
 							&& eventY - mDraggedObject.getHeight() / 2 >= 0) {
 						mDraggedObject.setY((int) Math.round(eventY
 								- mDraggedObject.getHeight() / 2));
 					}
-					for (int i = 0; i < xAnchors.size(); ++i) {
-						if (eventX >= xAnchors.get(i) - anchorStep / 2
-								&& eventX <= xAnchors.get(i) + anchorStep / 2) {
+					for (int i = 0; i < mAnchors.size(); ++i) {
+						if (eventX >= mAnchors.get(i) - mAnchorStep / 2
+								&& eventX <= mAnchors.get(i) + mAnchorStep / 2) {
 							if (i == mDraggedObjectIndex) {
 								break;
 							}
 							// swap coordinates
-							objectsToSort.get(i).setX(
-									xAnchors.get(mDraggedObjectIndex)
-											- objectsToSort.get(i).getWidth() / 2);
-							objectsToSort.get(mDraggedObjectIndex).setX(
-									xAnchors.get(i)
-											- objectsToSort
+							mObjectsToSort.get(i).setX(
+									mAnchors.get(mDraggedObjectIndex)
+											- mObjectsToSort.get(i).getWidth() / 2);
+							mObjectsToSort.get(mDraggedObjectIndex).setX(
+									mAnchors.get(i)
+											- mObjectsToSort
 													.get(mDraggedObjectIndex)
 													.getWidth() / 2);
-							Collections.swap(objectsToSort, i, mDraggedObjectIndex);
+							Collections.swap(mObjectsToSort, i, mDraggedObjectIndex);
 							mDraggedObjectIndex = i;
 							break;
 						}
