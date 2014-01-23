@@ -3,15 +3,16 @@ package com.sutorei.canvasbalance.view;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
+
 import com.sutorei.canvasbalance.domain.WeightedObject;
 import com.sutorei.canvasbalance.util.BalanceBitmapCache;
 
@@ -26,6 +27,9 @@ public class LineupView extends View {
 	private Paint mAntiAliasingPaint, mAlphaPaint;
 
 	private int mViewWidth, mViewHeight;
+
+	private RectF destRect = new RectF();
+	private int mDraggedObjectIndex;
 
 	public List<WeightedObject> getObjectsToSort() {
 		return mObjectsToSort;
@@ -59,7 +63,7 @@ public class LineupView extends View {
 		lineY = mLine.getHeight() / 2;
 		float padding = 5;
 		mAnchorStep = (mLine.getWidth() - padding * 2)
-				/ (mObjectsToSort.size() + 1);
+				/ (mObjectsToSort.size() + 0);
 		float currentOffset = padding;
 		for (WeightedObject wo : mObjectsToSort) {
 			float scaleHorizontal = (float) (mAnchorStep - padding * 2)
@@ -85,8 +89,6 @@ public class LineupView extends View {
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 		int mandatoryHeight = desiredHeight;
 		int mandatoryWidth = desiredWidth;
-		int screenWidth = widthSize;
-		int screenHeight = heightSize;
 		if (heightMode == MeasureSpec.EXACTLY
 				|| heightMode == MeasureSpec.AT_MOST) {
 			mandatoryHeight = heightSize;
@@ -95,11 +97,11 @@ public class LineupView extends View {
 				|| widthMode == MeasureSpec.AT_MOST) {
 			mandatoryHeight = widthSize;
 		}
-		if (mandatoryHeight >= screenHeight) {
-			mandatoryHeight = screenHeight;
+		if (mandatoryHeight >= heightSize) {
+			mandatoryHeight = heightSize;
 		}
-		if (mandatoryWidth >= screenWidth) {
-			mandatoryWidth = screenWidth;
+		if (mandatoryWidth >= widthSize) {
+			mandatoryWidth = widthSize;
 		}
 		float derivedProportion = (float) mandatoryWidth / mandatoryHeight;
 		if (derivedProportion >= proportion) {
@@ -138,8 +140,6 @@ public class LineupView extends View {
 		return answer;
 	}
 
-	RectF destRect = new RectF();
-
 	@Override
 	public void onDraw(Canvas canvas) {
 		if (!mInitialized) {
@@ -168,10 +168,8 @@ public class LineupView extends View {
 		canvas.restore();
 	}
 
-	private int mDraggedObjectIndex;
-
 	private class LineupOnTouchListener implements View.OnTouchListener {
-		
+
 		@Override
 		public boolean onTouch(View view, MotionEvent event) {
 			int eventX = (int) (event.getX() / mTotalScaleRatio);
@@ -214,13 +212,15 @@ public class LineupView extends View {
 							// swap coordinates
 							mObjectsToSort.get(i).setX(
 									mAnchors.get(mDraggedObjectIndex)
-											- mObjectsToSort.get(i).getWidth() / 2);
+											- mObjectsToSort.get(i).getWidth()
+											/ 2);
 							mObjectsToSort.get(mDraggedObjectIndex).setX(
 									mAnchors.get(i)
-											- mObjectsToSort
-													.get(mDraggedObjectIndex)
+											- mObjectsToSort.get(
+													mDraggedObjectIndex)
 													.getWidth() / 2);
-							Collections.swap(mObjectsToSort, i, mDraggedObjectIndex);
+							Collections.swap(mObjectsToSort, i,
+									mDraggedObjectIndex);
 							mDraggedObjectIndex = i;
 							break;
 						}

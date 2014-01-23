@@ -209,8 +209,6 @@ public class BalanceView extends View {
 		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 		int mandatoryHeight = desiredHeight;
 		int mandatoryWidth = desiredWidth;
-		int screenWidth = widthSize;
-		int screenHeight = heightSize;
 		if (heightMode == MeasureSpec.EXACTLY
 				|| heightMode == MeasureSpec.AT_MOST) {
 			mandatoryHeight = heightSize;
@@ -219,21 +217,19 @@ public class BalanceView extends View {
 				|| widthMode == MeasureSpec.AT_MOST) {
 			mandatoryHeight = widthSize;
 		}
-		mandatoryHeight = Math.min(mandatoryHeight, screenHeight);
-		mandatoryWidth = Math.min(mandatoryWidth, screenWidth);
+		mandatoryHeight = Math.min(mandatoryHeight, heightSize);
+		mandatoryWidth = Math.min(mandatoryWidth, widthSize);
 
 		float derivedProportion = (float) mandatoryWidth / mandatoryHeight;
 		if (derivedProportion >= proportion) {
-			setMeasuredDimension(Math.round(proportion * mandatoryHeight),
-					mandatoryHeight);
 			this.mViewWidth = Math.round(proportion * mandatoryHeight);
 			this.mViewHeight = mandatoryHeight;
 		} else {
-			setMeasuredDimension(mandatoryWidth,
-					Math.round(mandatoryWidth / proportion));
 			this.mViewWidth = mandatoryWidth;
 			this.mViewHeight = Math.round(mandatoryWidth / proportion);
 		}
+
+		setMeasuredDimension(this.mViewWidth, this.mViewHeight);
 	}
 
 	protected void onLayout(boolean changed, int left, int top, int right,
